@@ -1,0 +1,73 @@
+Tutorial for dummies: setting PySide
+
+
+
+
+--------Insatlling Binaries of PySide:
+1. Install latest pip distribution: download get-pip.py  { https://bootstrap.pypa.io/get-pip.py  } and run it using the python interpreter.
+2. Use pip to install the wheel binary packages:
+   pip install -U PySide
+
+3. check it out if PySide has been correctly installed , just issue a command in python interpreter :  import PySide PySide.__version__   
+
+
+
+
+-------OR  if You wann build the sources on your own :D  
+Building PySide:
+4 install    http://download.qt-project.org/official_releases/qt/4.8/4.8.6/   {Qt 4.8 libraries VS 2010 edition  for python 3.3 , 3.4}
+5 install cmake { http://www.cmake.org/download/ }  add cmake.exe to your PATH.
+6.install Visual Studio Express 2008 (Python 2.6, 2.7, or 3.2) / Visual Studio Express 2010 (Python 3.3, Python 3.4) or SDK 7.1 http://www.microsoft.com/en-us/download/details.aspx?id=8279
+7.install OpenSSL from http://slproweb.com/products/Win32OpenSSL.html
+
+then 1. Git clone the PySide repository from Github:
+			c:/> git clone https://github.com/PySide/pyside-setup.git pysidesetup
+		2. Change your working directory to "pyside-setup":
+			c:/> cd pyside-setup
+		3. Build the installer:
+			c:\> c:\Python27\python.exe setup.py bdist_wininst --msvcversion=9.0 --make=c:\Qt\4.8.4\bin\qmake.exe --openssl=c:\OpenSSL32bit\bin
+		4. Upon successful installation, the binaries can be found in the sub-folder "dist" c:\pyside-setup\dist
+		
+------------------------------------------------------------------------------------------------------------------------------------
+
+and try to build a first hello world application:
+
+# Import modules
+import sys
+from PySide.QtCore import Qt
+from PySide.QtGui import QApplication, QLabel
+# Main 
+if __name__ == '__main__':
+	myApp = QApplication(sys.argv)
+# Create all labels and set their properties
+	appLabel = QLabel()
+	appLabel.setText("Hello, World!!!\n lukasz_uszko 2014")
+	appLabel.setAlignment(Qt.AlignCenter)
+	appLabel.setWindowTitle("Uszko_Test_App")
+	appLabel.setGeometry(300, 300, 300, 300)
+	appLabel.show()
+	# Execute the Application and Exit
+	myApp.exec_()
+	sys.exit()
+
+
+
+
+
+
+
+
+--------Insatlling Paramiko SSH library and PyCrypto to be able to use it both properly:
+pip install paramiko
+pip install pycrypto
+
+if You get any bugs concerning winrandom module , just edit  string in the file: 
+crypto\Random\OSRNG\nt.py:
+
+from
+
+import winrandom
+
+to
+
+from . import winrandom 
