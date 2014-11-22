@@ -2,6 +2,8 @@
 #project uszko, kalicki  19-11-2014
 
 from PySide import QtCore, QtGui
+from createConnectionDialog import ConnectionDialog
+from establishConnectionWidget import NewConnectionTab
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -9,7 +11,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self.textEdit = QtGui.QTextEdit()
         #self.setCentralWidget(self.textEdit)
-
         self.createActions()
         self.createMenus()
         self.createToolBars()
@@ -25,7 +26,7 @@ class MainWindow(QtGui.QMainWindow):
     def setStyle(self):
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("CleanLooks"))
         QtGui.QApplication.setPalette(QtGui.QApplication.palette())
-		
+
     def newDevice(self):
         self.textEdit.clear()
 
@@ -71,9 +72,24 @@ class MainWindow(QtGui.QMainWindow):
         cursor.insertBlock()
         cursor.insertText("ADDRESS", italicFormat)  
     
-    def sshConnection(self):
+
+
+    def sshConnectionSetup(self):
+        self.newConnTab = NewConnectionTab()
+        self.newConnTab.sendSshConnDetails.connect(self.sshMakeConnection)
+        self.newConnTab.show()
         return
     
+    def sshMakeConnection(self,hostname, username, password):   # here we get ssh parameters for our connection to raspberry
+        conDialog = ConnectionDialog()
+        self.hostname = hostname
+        self.username = username
+        self.password = password
+        print("hostname :" + self.hostname)
+        print("usrname: " + self.username)
+        print("password: " + self.password)
+        print('paramiko connection starts')
+        return
 
     def save(self):
         filename, filtr = QtGui.QFileDialog.getSaveFileName(self,
@@ -112,7 +128,7 @@ class MainWindow(QtGui.QMainWindow):
         self.createConnection = QtGui.QAction(QtGui.QIcon('images/connection.png'),
                 "&Create SSH connection", self, shortcut=QtGui.QKeySequence.New,
                 statusTip="Create SSH connection to your Raspberry PI : ] ",
-                triggered=self.sshConnection)
+                triggered=self.sshConnectionSetup)
 
         self.newDeviceAct = QtGui.QAction(QtGui.QIcon('images/newDevice.png'),
                 "&Add New Device", self, shortcut=QtGui.QKeySequence.New,

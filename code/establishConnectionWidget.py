@@ -26,7 +26,7 @@ class NewConnectionTab(QWidget):
 
     def fireUpConnectionEntry(self):
         conDialog = ConnectionDialog()
-
+        self.hide()   #hide first widget
         if conDialog.exec_():
             hostname = conDialog.getHostname
             usrname = conDialog.getUsername
@@ -34,17 +34,19 @@ class NewConnectionTab(QWidget):
             self.sendSshConnDetails.emit(hostname, usrname, password)
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    def printAddress(hostname, usrname, password):
-        print("hostname :" + hostname)
-        print("usrname: " + usrname)
-        print("password: " + password)
-    import sys
-    from PySide.QtGui import QApplication
-    
-    app = QApplication(sys.argv)
-    newConnTab = NewConnectionTab()
-    newConnTab.sendSshConnDetails.connect(printAddress)
-    newConnTab.show()
-    sys.exit(app.exec_())
+    # def printAddress(hostname, usrname, password):
+        # print("hostname :" + hostname)
+        # print("usrname: " + usrname)
+        # print("password: " + password)
+    # import sys
+    # from PySide.QtGui import QApplication
+
+    # app = QApplication(sys.argv)
+    # newConnTab = NewConnectionTab()
+    # newConnTab.sendSshConnDetails.connect(printAddress)
+    # newConnTab.show()
+    # sys.exit(app.exec_())
+
+#DS14 "Kapitol" 30-072 Kraków ul. Budryka 2
