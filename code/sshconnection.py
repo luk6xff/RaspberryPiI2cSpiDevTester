@@ -1,3 +1,4 @@
+#uszko 22-11-2014
 import paramiko, base64
 import time
 import select 
@@ -9,7 +10,7 @@ class SshConnection:
     def __init__(self,hostname,port,username,password):
         self.hostname = hostname
         self.username = username
-        self.password = password
+        self.password = password 
         self.command =''
         self.port = 22
         self.sshClient=None
@@ -54,20 +55,13 @@ class SshConnection:
            self.sshClient.close()
            self.sshClient = None
     
-    def execute(self, command, sudo=False):
-        feed_password = False
-        if sudo and self.username != "root":
-            command = "sudo -S -p '' %s" % command
-            feed_password = self.password is not None and len(self.password) > 0
+    def executeCommand(self, command):
         stdin, stdout, stderr = self.sshClient.exec_command(command)
-        if feed_password:
-            stdin.write(self.password + "\n")
-            stdin.flush()
         return {'out': stdout.readlines(), 
                 'err': stderr.readlines(),
                 'retval': stdout.channel.recv_exit_status()}
 
-
+#DEBUG
 if __name__ == "__main__":
     client = SshConnection('192.168.1.13', 22, 'pi', 'raspberry') 
     try:

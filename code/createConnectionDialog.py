@@ -54,6 +54,7 @@ class ConnectionDialog(QDialog):
     def getPassword(self):
         return self.passwordText.text()
 
+#DEBUG
 if __name__ == "__main__":
     import sys
     from PySide.QtGui import QApplication

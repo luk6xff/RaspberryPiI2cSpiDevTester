@@ -4,12 +4,15 @@
 from PySide import QtCore, QtGui
 from createConnectionDialog import ConnectionDialog
 from establishConnectionWidget import NewConnectionTab
+from sshConsole import SshConsole
+from sshconnection import SshConnection
+from messageBoxWrapper import MessageBox
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.textEdit = QtGui.QTextEdit()
+        #self.textEdit = QtGui.QTextEdit()
         #self.setCentralWidget(self.textEdit)
         self.createActions()
         self.createMenus()
@@ -17,6 +20,8 @@ class MainWindow(QtGui.QMainWindow):
         self.createStatusBar()
         self.setIcon()
         self.setStyle()
+        self.sshClient=None
+        self.console= None
         #self.createDockWindows()
 
         self.setWindowTitle("I2C_SPI_CHECKER")
@@ -85,10 +90,25 @@ class MainWindow(QtGui.QMainWindow):
         self.hostname = hostname
         self.username = username
         self.password = password
-        print("hostname :" + self.hostname)
+        print("hostname: " + self.hostname)
         print("usrname: " + self.username)
         print("password: " + self.password)
         print('paramiko connection starts')
+        self.sshClient= SshConnection('192.168.1.13', 22, 'pi', 'raspberry')  #for tests 
+        self.sshClient.connect() #try to connect to raspberry
+        return
+    
+    def displayConsole(self):
+        if(self.sshClient is None):
+            MessageBox.warningMessage("You're not connected to RPi, Do it first and then open console")
+            return
+        if (self.console is None):
+            self.console = SshConsole(self.sshClient)
+            print('Console init')
+            self.console.exec_()
+            self.console =None
+        else:
+            print('Console is already being displayed!')
         return
 
     def save(self):
@@ -144,6 +164,10 @@ class MainWindow(QtGui.QMainWindow):
                 "&Undo", self, shortcut=QtGui.QKeySequence.Undo,
                 statusTip="Undo the last editing action", triggered=self.undo)
 
+        self.consoleAct = QtGui.QAction(QtGui.QIcon('images/console.png'),
+                "&Undo", self, shortcut=QtGui.QKeySequence.MoveToStartOfLine,    #button "HOME" on your keyboard
+                statusTip="Display SSH Console", triggered=self.displayConsole)
+
         self.quitAct = QtGui.QAction("&Quit", self, shortcut="Ctrl+Q",
                 statusTip="Quit the application", triggered=self.close)
 
@@ -178,6 +202,7 @@ class MainWindow(QtGui.QMainWindow):
         self.fileToolBar.addAction(self.createConnection)
         self.fileToolBar.addAction(self.newDeviceAct)
         self.fileToolBar.addAction(self.saveAct)
+        self.fileToolBar.addAction(self.consoleAct)
         self.editToolBar = self.addToolBar("Edit")
         self.editToolBar.addAction(self.undoAct)
 

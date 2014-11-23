@@ -33,20 +33,20 @@ class NewConnectionTab(QWidget):
             password = conDialog.getUsername
             self.sendSshConnDetails.emit(hostname, usrname, password)
 
+#DEBUG
+if __name__ == "__main__":
 
-# if __name__ == "__main__":
+    def printAddress(hostname, usrname, password):
+        print("hostname :" + hostname)
+        print("usrname: " + usrname)
+        print("password: " + password)
+    import sys
+    from PySide.QtGui import QApplication
 
-    # def printAddress(hostname, usrname, password):
-        # print("hostname :" + hostname)
-        # print("usrname: " + usrname)
-        # print("password: " + password)
-    # import sys
-    # from PySide.QtGui import QApplication
-
-    # app = QApplication(sys.argv)
-    # newConnTab = NewConnectionTab()
-    # newConnTab.sendSshConnDetails.connect(printAddress)
-    # newConnTab.show()
-    # sys.exit(app.exec_())
+    app = QApplication(sys.argv)
+    newConnTab = NewConnectionTab()
+    newConnTab.sendSshConnDetails.connect(printAddress)
+    newConnTab.show()
+    sys.exit(app.exec_())
 
 #DS14 "Kapitol" 30-072 Kraków ul. Budryka 2
