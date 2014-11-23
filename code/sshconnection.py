@@ -57,9 +57,9 @@ class SshConnection:
     
     def executeCommand(self, command):
         stdin, stdout, stderr = self.sshClient.exec_command(command)
-        return {'out': stdout.readlines(), 
-                'err': stderr.readlines(),
-                'retval': stdout.channel.recv_exit_status()}
+        return {'STDOUT': stdout.readlines(), 
+                'STDERR': stderr.readlines(),
+                'RET_VAL': stdout.channel.recv_exit_status()}
 
 #DEBUG
 if __name__ == "__main__":

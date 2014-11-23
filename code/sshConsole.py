@@ -61,6 +61,8 @@ class SshConsole(QtGui.QDialog):
         layout = QtGui.QFormLayout()
         layout.addWidget(self.response)
         self.responseGroupBox.setLayout(layout)
+        self.cursor = self.response.textCursor()
+        self.cursor.movePosition(QtGui.QTextCursor.Start)
 
 
     def createDialogButtons(self):
@@ -77,15 +79,23 @@ class SshConsole(QtGui.QDialog):
 
     def executeCommand(self):
         response = self.sshClient.executeCommand(self.command.text())
-        #self.addText(response)
+        #self.addText(response['STDOUT']+'\n'+response['STDERR']+'\n'+response['RET_VAL']+'\n')
         print("COMMAND HAS BEEN EXECUTED")
         #if (response is not None):
         #    print(response)                                   TODO !!!!!!
-        for line in response['out']:
+        for line in response['STDOUT']:
             print (line.strip('\n'))
+            self.addText(line.strip('\n')+'\n')
+        self.addText('\n')
     
     def addText(self,text):
-        self.response.setPlainText(text)
+        
+        self.cursor.beginEditBlock()
+        self.cursor.movePosition(QtGui.QTextCursor.Down,
+                QtGui.QTextCursor.MoveAnchor, 2)
+        self.cursor.insertText(text)
+        self.cursor.endEditBlock()
+        #self.response.setPlainText(text)
 
 #debug
 if __name__ == '__main__':

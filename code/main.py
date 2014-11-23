@@ -165,7 +165,7 @@ class MainWindow(QtGui.QMainWindow):
                 statusTip="Undo the last editing action", triggered=self.undo)
 
         self.consoleAct = QtGui.QAction(QtGui.QIcon('images/console.png'),
-                "&Undo", self, shortcut=QtGui.QKeySequence.MoveToStartOfLine,    #button "HOME" on your keyboard
+                "&Console SSH", self, shortcut=QtGui.QKeySequence.MoveToStartOfLine,    #button "HOME" on your keyboard
                 statusTip="Display SSH Console", triggered=self.displayConsole)
 
         self.quitAct = QtGui.QAction("&Quit", self, shortcut="Ctrl+Q",
