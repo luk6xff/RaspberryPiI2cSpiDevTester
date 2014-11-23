@@ -1,10 +1,12 @@
+Lukasz uszko 21-11-2014
+
 Tutorial for dummies: setting PySide
 
 
 
 
 --------Insatlling Binaries of PySide:
-1. Install latest pip distribution: download get-pip.py  { https://bootstrap.pypa.io/get-pip.py  } and run it using the python interpreter.
+1. Install latest pip distribution: download get-pip.py (IYou can find this file in the folder SETUP  or download from https://bootstrap.pypa.io/get-pip.py  ) and run it using the python interpreter.
 2. Use pip to install the wheel binary packages:
    pip install -U PySide
 

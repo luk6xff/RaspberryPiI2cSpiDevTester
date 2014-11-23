@@ -41,9 +41,10 @@ class SshConsole(QtGui.QDialog):
     def createSettingsButtonsGroupBox(self):
         self.settingsGroupBox = QtGui.QGroupBox("Settings")
         layout = QtGui.QHBoxLayout()
-
-        for i in range(4):
-            button = QtGui.QPushButton("Button %d" % (i + 1))
+        self.clearConsoleButton = QtGui.QPushButton("Clear")
+        layout.addWidget(self.clearConsoleButton)
+        for i in range(3):
+            button = QtGui.QPushButton("Empty %d" % (i + 1))
             layout.addWidget(button)
 
         self.settingsGroupBox.setLayout(layout)
@@ -73,12 +74,14 @@ class SshConsole(QtGui.QDialog):
         self.dialogButtonBox.addButton(self.cancelButton,QtGui.QDialogButtonBox.ActionRole)
 
     def initConnections(self):
+        self.clearConsoleButton.clicked.connect(self.response.clear)
         self.cancelButton.clicked.connect(self.reject)
         self.sendButton.clicked.connect(self.executeCommand)
     
 
     def executeCommand(self):
-        response = self.sshClient.executeCommand(self.command.text())
+        #response = self.sshClient.executeCommand(self.command.text())
+        response = self.sshClient.executeCommand(self.command.text(),True)
         #self.addText(response['STDOUT']+'\n'+response['STDERR']+'\n'+response['RET_VAL']+'\n')
         print("COMMAND HAS BEEN EXECUTED")
         #if (response is not None):
@@ -103,7 +106,7 @@ if __name__ == '__main__':
     import sys
 
     app = QtGui.QApplication(sys.argv)
-    sshClient= SshConnection('192.168.1.13', 22, 'pi', 'raspberry')  #for tests 
+    sshClient= SshConnection('172.16.1.102', 22, 'pi', 'raspberry')  #for tests 
     sshClient.connect() #try to connect to raspberry
     console = SshConsole(sshClient)
     console.addText("AAAAAA")

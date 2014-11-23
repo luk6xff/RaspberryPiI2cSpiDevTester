@@ -7,6 +7,7 @@ from establishConnectionWidget import NewConnectionTab
 from sshConsole import SshConsole
 from sshconnection import SshConnection
 from messageBoxWrapper import MessageBox
+from styleIcon import StyleIcon
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -18,65 +19,21 @@ class MainWindow(QtGui.QMainWindow):
         self.createMenus()
         self.createToolBars()
         self.createStatusBar()
-        self.setIcon()
-        self.setStyle()
+        #self.setIcon()
+        #self.setStyle()
+        StyleIcon.setStyleAndIcon(self)
         self.sshClient=None
         self.console= None
-        #self.createDockWindows()
 
         self.setWindowTitle("I2C_SPI_CHECKER")
         self.setGeometry(500,500,500,500)
 
-        #self.newLetter()
     def setStyle(self):
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("CleanLooks"))
         QtGui.QApplication.setPalette(QtGui.QApplication.palette())
 
     def newDevice(self):
-        self.textEdit.clear()
-
-        cursor = self.textEdit.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.Start)
-        topFrame = cursor.currentFrame()
-        topFrameFormat = topFrame.frameFormat()
-        topFrameFormat.setPadding(16)
-        topFrame.setFrameFormat(topFrameFormat)
-
-        textFormat = QtGui.QTextCharFormat()
-        boldFormat = QtGui.QTextCharFormat()
-        boldFormat.setFontWeight(QtGui.QFont.Bold)
-        italicFormat = QtGui.QTextCharFormat()
-        italicFormat.setFontItalic(True)
-
-        tableFormat = QtGui.QTextTableFormat()
-        tableFormat.setBorder(1)
-        tableFormat.setCellPadding(16)
-        tableFormat.setAlignment(QtCore.Qt.AlignRight)
-        cursor.insertTable(1, 1, tableFormat)
-        cursor.insertText("The Firm", boldFormat)
-        cursor.insertBlock()
-        cursor.insertText("321 City Street", textFormat)
-        cursor.insertBlock()
-        cursor.insertText("Industry Park")
-        cursor.insertBlock()
-        cursor.insertText("Some Country")
-        cursor.setPosition(topFrame.lastPosition())
-        cursor.insertText(QtCore.QDate.currentDate().toString("d MMMM yyyy"),
-                textFormat)
-        cursor.insertBlock()
-        cursor.insertBlock()
-        cursor.insertText("Dear ", textFormat)
-        cursor.insertText("NAME", italicFormat)   
-        cursor.insertText(",", textFormat)
-        for i in range(3):
-            cursor.insertBlock()
-        cursor.insertText("Yours sincerely,", textFormat)
-        for i in range(3):
-            cursor.insertBlock()
-        cursor.insertText("The Boss", textFormat)
-        cursor.insertBlock()
-        cursor.insertText("ADDRESS", italicFormat)  
-    
+        return
 
 
     def sshConnectionSetup(self):
@@ -100,7 +57,7 @@ class MainWindow(QtGui.QMainWindow):
     
     def displayConsole(self):
         if(self.sshClient is None):
-            MessageBox.warningMessage("You're not connected to RPi, Do it first and then open console")
+            MessageBox.warningMessage("You're not connected to RPi, Do it first and then open console","OK",None,None)
             return
         if (self.console is None):
             self.console = SshConsole(self.sshClient)

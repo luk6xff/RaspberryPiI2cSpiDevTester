@@ -1,6 +1,6 @@
 from PySide.QtCore import (Qt, Signal)
 from PySide.QtGui import (QWidget, QLabel, QPushButton, QVBoxLayout)
-
+from styleIcon import StyleIcon
 from createConnectionDialog import ConnectionDialog
 
 class NewConnectionTab(QWidget):
@@ -21,9 +21,15 @@ class NewConnectionTab(QWidget):
         layout.addWidget(continueButton, 0, Qt.AlignCenter)
         layout.addWidget(closeButton, 1, Qt.AlignCenter)
         self.setLayout(layout)
-
+        StyleIcon.setStyleAndIcon(self)
         continueButton.clicked.connect(self.fireUpConnectionEntry)
-
+    
+    def setStyleAndIcon(self):
+        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("CleanLooks"))
+        QtGui.QApplication.setPalette(QtGui.QApplication.palette())
+        appIcon=QtGui.QIcon('images/icon.png')
+        self.setWindowIcon(appIcon)
+        
     def fireUpConnectionEntry(self):
         conDialog = ConnectionDialog()
         self.hide()   #hide first widget

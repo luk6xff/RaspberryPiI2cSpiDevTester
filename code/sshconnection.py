@@ -55,7 +55,10 @@ class SshConnection:
            self.sshClient.close()
            self.sshClient = None
     
-    def executeCommand(self, command):
+    
+    def executeCommand(self, command, sudo=False):
+        if sudo and self.username != "root":
+           command = "sudo -S -p '' %s" % command  
         stdin, stdout, stderr = self.sshClient.exec_command(command)
         return {'STDOUT': stdout.readlines(), 
                 'STDERR': stderr.readlines(),

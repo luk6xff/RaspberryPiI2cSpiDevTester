@@ -1,6 +1,7 @@
 import paramiko, base64
 import time
 import select 
+import sys
 hostname = '172.16.1.102'
 password = 'raspberry'
 command = 'ls'
@@ -16,12 +17,28 @@ port = 22
     # ssh.connect(host, username=username, password=password)
 
 # test_ssh(hostname, username, password)	
+i = 1
 
+#
+# Try to connect to the host.
+# Retry a few times if it fails.
+#
+while True:
+    print ("Trying to connect to %s (%i/30)" % (hostname, i))
 
-
-client = paramiko.SSHClient()
-client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-client.connect(hostname, username=username, password=password)
+    try:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(hostname, username=username, password=password)
+        print ("Connected to %s" % hostname)
+        break
+    except paramiko.AuthenticationException:
+        print ("Authentication failed when connecting to %s" % hostname)
+        sys.exit(1)
+    except:
+        print ("Could not SSH to %s, waiting for it to start" % hostname)
+        i += 1
+        time.sleep(2)
 stdin, stdout, stderr = client.exec_command('ls')
 for line in stdout:
     print (line.strip('\n'))
@@ -33,17 +50,23 @@ channel = client.get_transport().open_session()
 channel.exec_command('python SI7020Test.py')                      
 #channel.exec_command("/tmp/test.sh")  
 #stdin, stdout, stderr = client.exec_command('python SI7020Test.py')
-while True:
+# Wait for the command to terminate
+while not stdout.channel.exit_status_ready():
 	time.sleep(2)
 	# for line in stdout:
 		# print (line.strip('\n'))
 	#if channel.exit_status_ready():                                
            # break
+		   # Only print data if there is data to read in the channel
+	#if (stdout.channel.recv_ready()):
 	r, w, x = select.select([channel], [], [])
 	if len(r) > 0:                                                 
-            print ("%s " % channel.recv(1024)) 
+		print (channel.recv(1024)) 
 	#print (stdout.printlines())		
-	
+#
+# Disconnect from the host
+#
+print ("Command done, closing SSH connection")
 client.close()
 
 

@@ -1,3 +1,0 @@
-1. Setup of Raspberry Pi environment    , unlock blacklist , i2c_dev add to -->/etc/modules
-2. good utils to be installed: http://jeffskinnerbox.wordpress.com/linux-python-packages-for-my-raspberry-pi/
-3. install paramiko ssh client: http://xuantuyen311.wordpress.com/2014/07/18/python3-ssh-on-windows-install-paramiko-modules/
