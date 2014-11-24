@@ -8,6 +8,7 @@ from sshConsole import SshConsole
 from sshconnection import SshConnection
 from messageBoxWrapper import MessageBox
 from styleIcon import StyleIcon
+from registersForm import DeviceDescriptionSheet
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -25,7 +26,8 @@ class MainWindow(QtGui.QMainWindow):
         self.setGeometry(500,500,500,500)
 
     def newDevice(self):
-        return
+        self.myDevice = DeviceDescriptionSheet()
+        self.myDevice.show()
 
 
     def sshConnectionSetup(self):
