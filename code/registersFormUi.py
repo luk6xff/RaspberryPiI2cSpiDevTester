@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegisterForm.ui'
 #
-# Created: Mon Nov 24 01:37:09 2014
+# Created: Mon Nov 24 03:01:32 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,14 +12,14 @@ from PySide import QtCore, QtGui
 class Ui_RegitersForm(object):
     def setupUi(self, RegitersForm):
         RegitersForm.setObjectName("RegitersForm")
-        RegitersForm.resize(683, 433)
+        RegitersForm.resize(705, 433)
         self.registersWidget = QtGui.QTableWidget(RegitersForm)
-        self.registersWidget.setGeometry(QtCore.QRect(40, 80, 541, 251))
+        self.registersWidget.setGeometry(QtCore.QRect(40, 100, 401, 251))
         self.registersWidget.setObjectName("registersWidget")
         self.registersWidget.setColumnCount(0)
         self.registersWidget.setRowCount(0)
         self.horizontalLayoutWidget = QtGui.QWidget(RegitersForm)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(40, 10, 541, 61))
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(40, 40, 541, 31))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -62,6 +62,36 @@ class Ui_RegitersForm(object):
         self.cancelButton = QtGui.QPushButton(RegitersForm)
         self.cancelButton.setGeometry(QtCore.QRect(580, 380, 75, 23))
         self.cancelButton.setObjectName("cancelButton")
+        self.registersLabel = QtGui.QLabel(RegitersForm)
+        self.registersLabel.setGeometry(QtCore.QRect(40, 80, 51, 20))
+        self.registersLabel.setObjectName("registersLabel")
+        self.frame = QtGui.QFrame(RegitersForm)
+        self.frame.setGeometry(QtCore.QRect(460, 110, 221, 241))
+        self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtGui.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.label = QtGui.QLabel(self.frame)
+        self.label.setGeometry(QtCore.QRect(0, 0, 46, 13))
+        self.label.setObjectName("label")
+        self.horizontalLayoutWidget_2 = QtGui.QWidget(self.frame)
+        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(0, 20, 214, 41))
+        self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
+        self.horizontalLayout_2 = QtGui.QHBoxLayout(self.horizontalLayoutWidget_2)
+        self.horizontalLayout_2.setSpacing(8)
+        self.horizontalLayout_2.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label_2 = QtGui.QLabel(self.horizontalLayoutWidget_2)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_2.addWidget(self.label_2)
+        self.nrOfBitmasksSpinBox = QtGui.QSpinBox(self.horizontalLayoutWidget_2)
+        self.nrOfBitmasksSpinBox.setObjectName("nrOfBitmasksSpinBox")
+        self.horizontalLayout_2.addWidget(self.nrOfBitmasksSpinBox)
+        spacerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem2)
+        self.bitmaskLabelTitle = QtGui.QLabel(RegitersForm)
+        self.bitmaskLabelTitle.setGeometry(QtCore.QRect(460, 90, 46, 13))
+        self.bitmaskLabelTitle.setObjectName("bitmaskLabelTitle")
 
         self.retranslateUi(RegitersForm)
         QtCore.QMetaObject.connectSlotsByName(RegitersForm)
@@ -72,4 +102,8 @@ class Ui_RegitersForm(object):
         self.addressLabel.setText(QtGui.QApplication.translate("RegitersForm", "7 bit Address:", None, QtGui.QApplication.UnicodeUTF8))
         self.saveButton.setText(QtGui.QApplication.translate("RegitersForm", "Save", None, QtGui.QApplication.UnicodeUTF8))
         self.cancelButton.setText(QtGui.QApplication.translate("RegitersForm", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
+        self.registersLabel.setText(QtGui.QApplication.translate("RegitersForm", "Registers:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("RegitersForm", "REG: ", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("RegitersForm", "Nr of Bitmasks:", None, QtGui.QApplication.UnicodeUTF8))
+        self.bitmaskLabelTitle.setText(QtGui.QApplication.translate("RegitersForm", "Bitmasks:", None, QtGui.QApplication.UnicodeUTF8))
 
