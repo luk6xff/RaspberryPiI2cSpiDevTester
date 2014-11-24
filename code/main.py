@@ -13,24 +13,16 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        #self.textEdit = QtGui.QTextEdit()
-        #self.setCentralWidget(self.textEdit)
         self.createActions()
         self.createMenus()
         self.createToolBars()
         self.createStatusBar()
-        #self.setIcon()
-        #self.setStyle()
         StyleIcon.setStyleAndIcon(self)
         self.sshClient=None
         self.console= None
 
         self.setWindowTitle("I2C_SPI_CHECKER")
         self.setGeometry(500,500,500,500)
-
-    def setStyle(self):
-        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create("CleanLooks"))
-        QtGui.QApplication.setPalette(QtGui.QApplication.palette())
 
     def newDevice(self):
         return
@@ -51,7 +43,8 @@ class MainWindow(QtGui.QMainWindow):
         print("usrname: " + self.username)
         print("password: " + self.password)
         print('paramiko connection starts')
-        self.sshClient= SshConnection('192.168.1.13', 22, 'pi', 'raspberry')  #for tests 
+        self.sshClient= SshConnection(self.hostname, self.username,self.password )
+        #self.sshClient= SshConnection('172.16.1.102','pi', 'raspberry')  #for tests 
         self.sshClient.connect() #try to connect to raspberry
         return
     

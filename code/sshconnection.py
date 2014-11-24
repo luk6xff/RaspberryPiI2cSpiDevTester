@@ -7,12 +7,15 @@ import sys
 
 
 class SshConnection:
-    def __init__(self,hostname,port,username,password):
+    def __init__(self,hostname,username,password,port=None):
         self.hostname = hostname
         self.username = username
         self.password = password 
         self.command =''
-        self.port = 22
+        if port is None:
+            self.port = 22
+        else:
+            self.port = port
         self.sshClient=None
         #jakbys my z jakimis kluczami 
         # if key is not None:

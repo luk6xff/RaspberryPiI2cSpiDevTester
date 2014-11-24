@@ -2,7 +2,7 @@
 
 from PySide import QtCore, QtGui
 from sshconnection import SshConnection
-
+from styleIcon import StyleIcon
 class SshConsole(QtGui.QDialog):
 
     def __init__(self,sshClient):
@@ -26,7 +26,7 @@ class SshConsole(QtGui.QDialog):
         mainLayout.addWidget(self.responseGroupBox)
         mainLayout.addWidget(self.dialogButtonBox)
         self.setLayout(mainLayout)
-
+        StyleIcon.setStyleAndIcon(self)
         self.setWindowTitle("SSH CONSOLE")
 
     def createMenu(self):

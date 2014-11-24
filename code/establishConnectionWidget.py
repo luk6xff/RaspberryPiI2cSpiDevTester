@@ -36,7 +36,7 @@ class NewConnectionTab(QWidget):
         if conDialog.exec_():
             hostname = conDialog.getHostname
             usrname = conDialog.getUsername
-            password = conDialog.getUsername
+            password = conDialog.getPassword
             self.sendSshConnDetails.emit(hostname, usrname, password)
 
 #DEBUG
