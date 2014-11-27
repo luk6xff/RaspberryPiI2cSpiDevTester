@@ -226,6 +226,19 @@
     </property>
     <layout class="QHBoxLayout" name="register8BitHLayout"/>
    </widget>
+   <widget class="QPushButton" name="createBitmaskButton">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>100</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Create_Bitmask</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_3">
    <property name="geometry">

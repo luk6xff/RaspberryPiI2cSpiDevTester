@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegisterForm.ui'
 #
-# Created: Thu Nov 27 01:09:29 2014
+# Created: Thu Nov 27 02:54:28 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,6 +86,9 @@ class Ui_RegitersForm(object):
         self.register8BitHLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget_2)
         self.register8BitHLayout.setContentsMargins(0, 0, 0, 0)
         self.register8BitHLayout.setObjectName("register8BitHLayout")
+        self.createBitmaskButton = QtGui.QPushButton(self.frame)
+        self.createBitmaskButton.setGeometry(QtCore.QRect(230, 100, 131, 31))
+        self.createBitmaskButton.setObjectName("createBitmaskButton")
         self.horizontalLayoutWidget_3 = QtGui.QWidget(RegitersForm)
         self.horizontalLayoutWidget_3.setGeometry(QtCore.QRect(40, 80, 541, 22))
         self.horizontalLayoutWidget_3.setObjectName("horizontalLayoutWidget_3")
@@ -112,6 +115,7 @@ class Ui_RegitersForm(object):
         self.cancelButton.setText(QtGui.QApplication.translate("RegitersForm", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("RegitersForm", "REG: ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("RegitersForm", "Reg Value:", None, QtGui.QApplication.UnicodeUTF8))
+        self.createBitmaskButton.setText(QtGui.QApplication.translate("RegitersForm", "Create_Bitmask", None, QtGui.QApplication.UnicodeUTF8))
         self.registersLabel.setText(QtGui.QApplication.translate("RegitersForm", "Registers:", None, QtGui.QApplication.UnicodeUTF8))
         self.bitmaskLabelTitle.setText(QtGui.QApplication.translate("RegitersForm", "Bitmasks:", None, QtGui.QApplication.UnicodeUTF8))
 
