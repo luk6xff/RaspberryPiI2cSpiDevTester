@@ -70,7 +70,11 @@ class BitState(Enum):
     NotPressed = 0,
     Pressed =1
     
-
+class WriteReadBitPrivilege(Enum):
+    NA = "N/A",
+    Write =" W ",
+    Read =" R ",
+    WriteRead="R/W"
     
 
     
@@ -82,10 +86,10 @@ class RectRenderArea(QtGui.QWidget):
         super(RectRenderArea, self).__init__(parent)
 
         self.path = path
-        self.bitState = BitState.NotPressed
         self.penWidth = 1
-        self.rotationAngle = 0
         self.setBackgroundRole(QtGui.QPalette.Base)
+        self.bitState = BitState.NotPressed
+        self.setWriteReadAttribute(WriteReadBitPrivilege.WriteRead.value)
     
     
     def minimumSizeHint(self):
@@ -121,6 +125,15 @@ class RectRenderArea(QtGui.QWidget):
     
     def getFieldState(self):
         return self.bitState 
+        
+    def setWriteReadAttribute(self,attr):
+        self.writeReadAttribute= attr
+        self.update()
+    
+    def getWriteReadAttribute(self):
+        return self.writeReadAttribute 
+        
+
             
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
@@ -134,7 +147,13 @@ class RectRenderArea(QtGui.QWidget):
         gradient.setColorAt(0.0, self.fillColor1)
         gradient.setColorAt(1.0, self.fillColor2)
         painter.setBrush(QtGui.QBrush(gradient))
+        painter.setRenderHint(QtGui.QPainter.Antialiasing);
+        font =QtGui.QFont("Helvetica")
+        font.setPointSize(15);
+        painter.setFont(font);
+        #self.path.addText(30,45,font, "R/W")
         painter.drawPath(self.path)
+        painter.drawText(20,45, str(self.writeReadAttribute));
         
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
