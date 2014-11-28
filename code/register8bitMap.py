@@ -1,7 +1,7 @@
 from PySide import QtCore, QtGui
 from enum import Enum
 
-D = True    #debug enebled
+D = False    #debug enebled
 
 class Reg8BitMap(QtGui.QWidget):
     NumOfBits = 8
@@ -41,6 +41,8 @@ class Reg8BitMap(QtGui.QWidget):
     def updateRegisterValue(self):
         self.byteRegVal=0;
         for i in range(Reg8BitMap.NumOfBits):
+            if(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getWriteReadAttribute()==WriteReadBitPrivilege.NA):
+                self.byteRegVal&= ~(1<<i)    
             if(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getFieldState()==BitState.Pressed):
                 self.byteRegVal|= 1<<i
             else:
@@ -55,7 +57,7 @@ class Reg8BitMap(QtGui.QWidget):
             self.byteRegAccessList.append(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getWriteReadAttribute().value)
         if D:
             print(self.byteRegAccessList)         
-        self.regValueChanged.emit(self.byteRegAccessList)
+        self.regAccessPermissionChanged.emit(self.byteRegAccessList)
     
     def setConnections(self):
         for i in range(Reg8BitMap.NumOfBits):
@@ -92,6 +94,7 @@ class WriteReadBitPrivilege(Enum):
 class RectRenderArea(QtGui.QWidget):
     ColorBitActive= [QtCore.Qt.white,QtCore.Qt.green]
     ColorBitInactive= [QtCore.Qt.white,QtCore.Qt.red]
+    ColorBitNotUsed= [QtCore.Qt.white,QtCore.Qt.cyan]
     bitValueChanged = QtCore.Signal()
     bitAccessPermissionChanged= QtCore.Signal()
     def __init__(self, path, parent=None):
@@ -127,19 +130,25 @@ class RectRenderArea(QtGui.QWidget):
         self.update()
 
     def setFieldState(self):
-        if(self.bitState is BitState.NotPressed): 
-            self.bitState = BitState.Pressed
-            self.setFillGradient(RectRenderArea.ColorBitActive[0],RectRenderArea.ColorBitActive[1])
-        else:
-            self.bitState = BitState.NotPressed
-            self.setFillGradient(RectRenderArea.ColorBitInactive[0],RectRenderArea.ColorBitInactive[1])
-    
+        if(self.getWriteReadAttribute() is not WriteReadBitPrivilege.NA):
+            if(self.bitState is BitState.NotPressed):
+                    self.bitState = BitState.Pressed
+                    self.setFillGradient(RectRenderArea.ColorBitActive[0],RectRenderArea.ColorBitActive[1])
+            else:
+                self.bitState = BitState.NotPressed
+                self.setFillGradient(RectRenderArea.ColorBitInactive[0],RectRenderArea.ColorBitInactive[1])
+        #self.update() update is being done in setFillGradient method
+        
     def getFieldState(self):
         return self.bitState 
         
     def setWriteReadAttribute(self,attr):
         self.writeReadAttribute= attr
-        self.update()
+        if(self.getWriteReadAttribute() is WriteReadBitPrivilege.NA):
+           self.setFillGradient(RectRenderArea.ColorBitNotUsed[0], RectRenderArea.ColorBitNotUsed[1])
+        else:
+            self.setFillGradient(RectRenderArea.ColorBitInactive[0],RectRenderArea.ColorBitInactive[1])
+        #self.update() update is being done in setFillGradient method
     
     def getWriteReadAttribute(self):
         return self.writeReadAttribute 
