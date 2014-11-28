@@ -4,6 +4,7 @@ from registersFormUi import Ui_RegitersForm
 from styleIcon import StyleIcon
 from register8bitMap import Reg8BitMap
 
+D = True    #debug enebled
 
 class DeviceDescriptionSheet(QtGui.QWidget):
     
@@ -113,6 +114,5 @@ if __name__ == "__main__":
     myDevice = DeviceDescriptionSheet()
     myDevice.show()
     sys.exit(app.exec_())
-    
-    
+
 
