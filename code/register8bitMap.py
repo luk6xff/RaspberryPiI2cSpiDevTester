@@ -1,13 +1,14 @@
 from PySide import QtCore, QtGui
 from enum import Enum
 
+D = True    #debug enebled
 
 class Reg8BitMap(QtGui.QWidget):
     NumOfBits = 8
     regValueChanged = QtCore.Signal(int)
+    regAccessPermissionChanged= QtCore.Signal(list)
     def __init__(self, parent =None):
         super(Reg8BitMap,self).__init__(parent)
-        
         
         rectPath = QtGui.QPainterPath()
         rectPath.moveTo(10.0, 20.0)
@@ -45,11 +46,21 @@ class Reg8BitMap(QtGui.QWidget):
             else:
                 self.byteRegVal&= ~(1<<i)       
         self.regValueChanged.emit(self.byteRegVal)
-        print("REG_VAL = %d" % self.byteRegVal)
+        if D:
+            print("REG_VAL = %d" % self.byteRegVal)
+    
+    def updateRegAccesPermissionParam(self):
+        self.byteRegAccessList=list();
+        for i in range(Reg8BitMap.NumOfBits):
+            self.byteRegAccessList.append(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getWriteReadAttribute().value)
+        if D:
+            print(self.byteRegAccessList)         
+        self.regValueChanged.emit(self.byteRegAccessList)
     
     def setConnections(self):
         for i in range(Reg8BitMap.NumOfBits):
             self.renderBitsArea[i].bitValueChanged.connect(self.updateRegisterValue)
+            self.renderBitsArea[i].bitAccessPermissionChanged.connect(self.updateRegAccesPermissionParam)
         
     def fillGradientChanged(self):
         for i in range(Reg8BitMap.NumOfBits):
@@ -67,13 +78,13 @@ class Reg8BitMap(QtGui.QWidget):
 
  
 class BitState(Enum):
-    NotPressed = 0,
+    NotPressed = 0
     Pressed =1
     
 class WriteReadBitPrivilege(Enum):
-    NA = "N/A",
-    Write =" W ",
-    Read =" R ",
+    NA="N/A"
+    Write=" W "
+    Read=" R "
     WriteRead="R/W"
     
 
@@ -82,6 +93,7 @@ class RectRenderArea(QtGui.QWidget):
     ColorBitActive= [QtCore.Qt.white,QtCore.Qt.green]
     ColorBitInactive= [QtCore.Qt.white,QtCore.Qt.red]
     bitValueChanged = QtCore.Signal()
+    bitAccessPermissionChanged= QtCore.Signal()
     def __init__(self, path, parent=None):
         super(RectRenderArea, self).__init__(parent)
 
@@ -89,8 +101,7 @@ class RectRenderArea(QtGui.QWidget):
         self.penWidth = 1
         self.setBackgroundRole(QtGui.QPalette.Base)
         self.bitState = BitState.NotPressed
-        self.setWriteReadAttribute(WriteReadBitPrivilege.WriteRead.value)
-    
+        self.setWriteReadAttribute(WriteReadBitPrivilege.WriteRead)
     
     def minimumSizeHint(self):
         return QtCore.QSize(30, 30)
@@ -138,8 +149,9 @@ class RectRenderArea(QtGui.QWidget):
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.scale(0.6, 0.9)   # i really don't get it but those values work most properly
-        print("%d" %self.height() , "%d" %self.width())
+        painter.scale(0.6, 0.9)   # i really don't get it HOW IT WORKS!! but those values seem to handle it quite well
+        if D:
+            print("%d" %self.height() , "%d" %self.width())
         
         painter.setPen(QtGui.QPen(self.penColor, self.penWidth,
                 QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
@@ -149,17 +161,35 @@ class RectRenderArea(QtGui.QWidget):
         painter.setBrush(QtGui.QBrush(gradient))
         painter.setRenderHint(QtGui.QPainter.Antialiasing);
         font =QtGui.QFont("Helvetica")
-        font.setPointSize(15);
+        font.setPointSize(12);
         painter.setFont(font);
         #self.path.addText(30,45,font, "R/W")
+        if D:
+            print("PAINTING...")
         painter.drawPath(self.path)
-        painter.drawText(20,45, str(self.writeReadAttribute));
+        painter.drawText(25,45, str(self.writeReadAttribute.value));
+        if D:
+            print("%s" % str(self.writeReadAttribute.name))
         
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            print("X=%f" %event.x(), "Y=%f"%event.y())
+            if D:
+                print("X=%f" %event.x(), "Y=%f"%event.y())
             self.setFieldState()
             self.bitValueChanged.emit()  #signal for Register window to check the value
+            self.update()
+        elif event.button() == QtCore.Qt.RightButton:
+            flag= 0    
+            for params in WriteReadBitPrivilege:
+                if flag==1:
+                    self.setWriteReadAttribute(params)
+                    break
+                if params == self.getWriteReadAttribute():
+                    if params == WriteReadBitPrivilege.WriteRead:
+                        self.setWriteReadAttribute(WriteReadBitPrivilege.NA)
+                        break
+                    flag =1
+            self.bitAccessPermissionChanged.emit()  #signal for Register window to check the value
             self.update()
         else:
             super(RectRenderArea, self).mousePressEvent(event)  
