@@ -1,5 +1,7 @@
 #uszko 23-11-2014
 
+#pyside-uic uiRegisterForm.ui -o reigersFormUi.py
+
 from PySide import QtCore, QtGui
 from sshconnection import SshConnection
 from styleIcon import StyleIcon
