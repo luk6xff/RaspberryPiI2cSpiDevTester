@@ -114,5 +114,6 @@ if __name__ == "__main__":
     myDevice = DeviceDescriptionSheet()
     myDevice.show()
     sys.exit(app.exec_())
-
+    
+    
 

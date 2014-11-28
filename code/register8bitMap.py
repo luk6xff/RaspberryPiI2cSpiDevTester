@@ -1,7 +1,7 @@
 from PySide import QtCore, QtGui
 from enum import Enum
 
-D = False    #debug enebled
+D = True    #debug enebled
 
 class Reg8BitMap(QtGui.QWidget):
     NumOfBits = 8
@@ -137,6 +137,8 @@ class RectRenderArea(QtGui.QWidget):
             else:
                 self.bitState = BitState.NotPressed
                 self.setFillGradient(RectRenderArea.ColorBitInactive[0],RectRenderArea.ColorBitInactive[1])
+        else: 
+            self.bitState = BitState.NotPressed
         #self.update() update is being done in setFillGradient method
         
     def getFieldState(self):
@@ -198,6 +200,9 @@ class RectRenderArea(QtGui.QWidget):
                         self.setWriteReadAttribute(WriteReadBitPrivilege.NA)
                         break
                     flag =1
+            self.bitState = BitState.Pressed #just to cheat the widget a little
+            self.setFieldState()
+            self.bitValueChanged.emit()  #signal for Register window to check the value        
             self.bitAccessPermissionChanged.emit()  #signal for Register window to check the value
             self.update()
         else:
