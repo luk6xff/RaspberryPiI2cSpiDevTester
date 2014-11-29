@@ -20,8 +20,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
    
     def setItems(self):
         horizontalHeaderLabel = ['Name','Address']
-        self.ui.registersWidget.setHorizontalHeaderLabels(horizontalHeaderLabel)
         self.ui.registersWidget.setColumnCount(2)
+        self.ui.registersWidget.setHorizontalHeaderLabels(horizontalHeaderLabel)
         self.ui.registersWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.ui.registersWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
        
@@ -31,6 +31,9 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.createBitmaskButton.clicked.connect(self.createBitmaskDialog)
         self.ui.addRegisterButton.clicked.connect(self.addNewRegister)
         self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
+        self.ui.registersWidget.cellClicked.connect(self.updateNameOfSelectedRegister) #update Label name of checked register
+        self.ui.registersWidget.cellChanged.connect(self.updateNameOfSelectedRegister)
+  
         
 
     
@@ -49,15 +52,18 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         #newItem = QtGui.QTableWidgetItem(("%s" % pow(1, 1+1)))
         #self.ui.registersWidget.setItem(0, 0, newItem)
         
-        regTuple= (QtGui.QTableWidgetItem(),QtGui.QTableWidgetItem(),Reg8BitMap()) #one whole row and 
+        regTuple= (QtGui.QTableWidgetItem(),QtGui.QTableWidgetItem(),Reg8BitMap()) #one whole row and (Reg name widget item / Addres Widget item / bye widget " 
         self.registerList.append(regTuple)
         
-        #view update
+        #view update (all slots and signals are being connected right here )
         self.registerList[-1][2].regValueChanged.connect(self.updateRegisterValue)
         self.registerList[-1][2].regAccessPermissionChanged.connect(self.updateAccessParameters)
         self.ui.register8BitHLayout.addWidget(self.registerList[-1][2])
+        self.registerList[-1][2].updateRegisterValue()   
+        self.registerList[-1][2].updateRegAccesPermissionParam()
         self.lastUsedRow=self.ui.registersWidget.rowCount()-1 
-    
+        self.ui.registersWidget.setItem(self.ui.registersWidget.rowCount()-1 , 0, self.registerList[-1][0])
+        self.ui.registersWidget.setItem(self.ui.registersWidget.rowCount()-1 , 1, self.registerList[-1][1])
     # Below all definitions of the slots used by this class
     
     def updateRegisterValue(self,val):
@@ -68,6 +74,10 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.acccessPermisionList= list
         if D:
             print( list )
+            
+    def updateNameOfSelectedRegister(self,row, column):
+        item=self.ui.registersWidget.item(row,0)
+        self.ui.nameOfRegLabel.setText(item.text())
     
     def createBitmaskDialog(self):
         bitMaskDialog = BitMaskDialog(self.regValue,self.acccessPermisionList)
@@ -134,7 +144,8 @@ class BitMaskDialog(QtGui.QDialog):
             self.textLabel.setText(text)
     
     def getModifiedValues(self):
-        retValues= [self.General.bitmaskNameEdit.text(),self.General.bitmaskValueLabel.text()] #TODO 
+        retValues= [(self.General.bitmaskNameEdit.text()),(self.General.bitmaskValueLabel.text())] #TODO 
+        return retValues
 
         
 class GeneralTab(QtGui.QWidget):
