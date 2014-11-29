@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegisterForm.ui'
 #
-# Created: Thu Nov 27 02:54:28 2014
+# Created: Fri Nov 28 16:35:59 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -103,6 +103,9 @@ class Ui_RegitersForm(object):
         self.horizontalLayout_4.addWidget(self.bitmaskLabelTitle)
         spacerItem2 = QtGui.QSpacerItem(10, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem2)
+        self.addRegisterButton = QtGui.QPushButton(RegitersForm)
+        self.addRegisterButton.setGeometry(QtCore.QRect(50, 362, 241, 41))
+        self.addRegisterButton.setObjectName("addRegisterButton")
 
         self.retranslateUi(RegitersForm)
         QtCore.QMetaObject.connectSlotsByName(RegitersForm)
@@ -118,4 +121,5 @@ class Ui_RegitersForm(object):
         self.createBitmaskButton.setText(QtGui.QApplication.translate("RegitersForm", "Create_Bitmask", None, QtGui.QApplication.UnicodeUTF8))
         self.registersLabel.setText(QtGui.QApplication.translate("RegitersForm", "Registers:", None, QtGui.QApplication.UnicodeUTF8))
         self.bitmaskLabelTitle.setText(QtGui.QApplication.translate("RegitersForm", "Bitmasks:", None, QtGui.QApplication.UnicodeUTF8))
+        self.addRegisterButton.setText(QtGui.QApplication.translate("RegitersForm", "Add Register", None, QtGui.QApplication.UnicodeUTF8))
 
