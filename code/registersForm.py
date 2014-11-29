@@ -1,8 +1,10 @@
-
+#uszko 26.11.2014
 from PySide import QtCore, QtGui
 from registersFormUi import Ui_RegitersForm
 from styleIcon import StyleIcon
 from register8bitMap import Reg8BitMap
+from messageBoxWrapper import MessageBox
+import re
 
 D = True    #debug enebled
 
@@ -12,7 +14,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         super(DeviceDescriptionSheet, self).__init__(parent)
         self.ui =  Ui_RegitersForm()
         self.ui.setupUi(self)
-        self.registerList= list()  #sth aka MVC dessign pattern, all stuff is located in one list
+        self.registerList= list()  #sth aka MVC dessign pattern, all stuff is stored in one main list
         self.setItems()
         self.initConnections()
         StyleIcon.setStyleAndIcon(self)
@@ -29,6 +31,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
 
     def initConnections(self):    # setup all connections of signal and slots
         self.ui.createBitmaskButton.clicked.connect(self.createBitmaskDialog)
+        #self.ui.cancelButton.clicked.connect(self.close)
+        self.ui.cancelButton.clicked.connect(self.dstrBitMaskTest)
         self.ui.addRegisterButton.clicked.connect(self.addNewRegister)
         self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
         self.ui.registersWidget.cellClicked.connect(self.updateNameOfSelectedRegister) #update Label name of checked register
@@ -73,6 +77,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
     def updateAccessParameters(self,list):
         self.acccessPermisionList= list
         if D:
+            print("updateAccessParameters(self,list)")
             print( list )
             
     def updateNameOfSelectedRegister(self,row, column):
@@ -80,10 +85,48 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.nameOfRegLabel.setText(item.text())
     
     def createBitmaskDialog(self):
+        if D:
+            print("createBitmaskDialog(self):")
+        matchRegVal=re.match(r'[0-9]',(str(self.regValue)),re.I)
+        if(matchRegVal):
+            if D:
+                print(matchRegVal.group())
+        else:                                                  #TODO is that needed at all??
+            if D:
+                print("incorrect register Value")
+        if(self.regValue ==0):
+            MessageBox.incorrectParamMessage("Cannot create a bitmask with value 0! , Check proper bit(s) and try again") 
+            if D:    
+                print("Cannot create a bitmask with value 0!")
+            return
+            
+        #check acccessPermisionList whether or not they are equal
+        temp = list()
+        for attr in range(len(self.acccessPermisionList)):
+            if(self.regValue & 1<<attr):
+                temp.append(self.acccessPermisionList[attr])
+        if(temp[1:] == temp[:-1]):
+            if D:
+                print("Permission attrs are equal OK")
+        else:
+            MessageBox.incorrectParamMessage("Permission attributes are not equal in every Bit. They must be equal, Set them correctly and try again !") 
+            if D:    
+                print("Permission attrs are different FAILED")
+            return
+            
         bitMaskDialog = BitMaskDialog(self.regValue,self.acccessPermisionList)
         if (bitMaskDialog.exec_()):
+            retVal=bitMaskDialog.getModifiedValues()    
+            self.registerList[self.ui.registersWidget.currentRow()][2].bitMaskCreated(int(retVal[1],16))
             if D:
-                print(bitMaskDialog.getModifiedValues()) 
+                print(retVal)
+                print("Bitmask value %d" %(int(retVal[1],16)))
+    
+    def dstrBitMaskTest(self):   ##test method
+        self.destroyBitmask(0x3)
+    def destroyBitmask(self,bitmask):
+        self.registerList[self.ui.registersWidget.currentRow()][2].bitMaskDestroyed(bitmask)
+    
     
     
     def reload8BitRegisterView(self,row,column):
@@ -92,7 +135,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             #child = self.ui.register8BitHLayout.takeAt(1)
             #del child
             if D:
-                print("Replace Widget")
+                print("reload8BitRegisterView(self,row,column)")
                 print(self.lastUsedRow)
                 print(self.registerList[row][2])
         self.ui.register8BitHLayout.addWidget(self.registerList[row][2])
@@ -104,9 +147,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         
     
 
-
-
-       
+     
 class BitMaskDialog(QtGui.QDialog):
     def __init__(self, regVal, accessData, parent=None):
         super(BitMaskDialog, self).__init__(parent)

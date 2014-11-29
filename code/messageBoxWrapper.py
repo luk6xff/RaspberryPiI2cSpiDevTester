@@ -19,4 +19,10 @@ class MessageBox(QtGui.QDialog):
             if acceptMethod is not None: 
                 acceptMethod(*acceptMethodArgs)
         # else:
-            # rejectMethod(*rejectMethodArgs)
+            # rejectMethod(*rejectMethodArgs
+            
+    @staticmethod     
+    def incorrectParamMessage(message):    
+        msgBox = QtGui.QMessageBox(QtGui.QMessageBox.Warning,"Incorrect parameters", message,
+                    QtGui.QMessageBox.Ok)
+        msgBox.exec_()

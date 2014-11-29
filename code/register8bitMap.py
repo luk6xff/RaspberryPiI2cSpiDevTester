@@ -23,7 +23,7 @@ class Reg8BitMap(QtGui.QWidget):
                 RectRenderArea(rectPath), 
                 RectRenderArea(rectPath),
                 RectRenderArea(rectPath), 
-                RectRenderArea(rectPath)]
+                RectRenderArea(rectPath)]  #1 byte
         assert len(self.renderBitsArea) == Reg8BitMap.NumOfBits
 
         mainLayout = QtGui.QGridLayout()
@@ -42,8 +42,10 @@ class Reg8BitMap(QtGui.QWidget):
         self.byteRegVal=0;
         for i in range(Reg8BitMap.NumOfBits):
             if(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getWriteReadAttribute()==WriteReadBitPrivilege.NA):
-                self.byteRegVal&= ~(1<<i)    
-            if(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getFieldState()==BitState.Pressed):
+                self.byteRegVal&= ~(1<<i)
+            if(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getFieldState()==BitState.Blocked):
+                self.byteRegVal&= ~(1<<i)
+            elif(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getFieldState()==BitState.Pressed):
                 self.byteRegVal|= 1<<i
             else:
                 self.byteRegVal&= ~(1<<i)       
@@ -54,10 +56,24 @@ class Reg8BitMap(QtGui.QWidget):
     def updateRegAccesPermissionParam(self):
         self.byteRegAccessList=list();
         for i in range(Reg8BitMap.NumOfBits):
-            self.byteRegAccessList.append(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getWriteReadAttribute().value)
+            self.byteRegAccessList.append(self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].getWriteReadAttribute().value) ##TODO
         if D:
             print(self.byteRegAccessList)         
         self.regAccessPermissionChanged.emit(self.byteRegAccessList)
+        
+    def bitMaskCreated(self, bitmask): ######## invoked after creation of bitmask 
+        for i in range(Reg8BitMap.NumOfBits):
+            if(bitmask & (1<<i)):
+                self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].bitState= BitState.Blocked
+                self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].setFieldState()
+        self.updateRegisterValue()
+        
+    def bitMaskDestroyed(self, bitmask): ########
+        for i in range(Reg8BitMap.NumOfBits):
+            if(bitmask & (1<<i)):
+                self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].bitState= BitState.Pressed #pressed cuz then setFieldState() will update it to not pressed automatically
+                self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].setFieldState()
+        self.updateRegisterValue()
     
     def setConnections(self):
         for i in range(Reg8BitMap.NumOfBits):
@@ -82,6 +98,7 @@ class Reg8BitMap(QtGui.QWidget):
 class BitState(Enum):
     NotPressed = 0
     Pressed =1
+    Blocked =2   #when Bitmask has been created we cannot modify it further
     
 class WriteReadBitPrivilege(Enum):
     NA="N/A"
@@ -95,6 +112,7 @@ class RectRenderArea(QtGui.QWidget):
     ColorBitActive= [QtCore.Qt.white,QtCore.Qt.green]
     ColorBitInactive= [QtCore.Qt.white,QtCore.Qt.red]
     ColorBitNotUsed= [QtCore.Qt.white,QtCore.Qt.cyan]
+    ColorBitBlocked= [QtCore.Qt.white,QtCore.Qt.yellow]
     bitValueChanged = QtCore.Signal()
     bitAccessPermissionChanged= QtCore.Signal()
     def __init__(self, path, parent=None):
@@ -130,7 +148,10 @@ class RectRenderArea(QtGui.QWidget):
         self.update()
 
     def setFieldState(self):
-        if(self.getWriteReadAttribute() is not WriteReadBitPrivilege.NA):
+        if(self.bitState is BitState.Blocked):   #when bit blocked
+           self.setFillGradient(RectRenderArea.ColorBitBlocked[0],RectRenderArea.ColorBitBlocked[1]) 
+           
+        elif(self.getWriteReadAttribute() is not WriteReadBitPrivilege.NA):
             if(self.bitState is BitState.NotPressed):
                     self.bitState = BitState.Pressed
                     self.setFillGradient(RectRenderArea.ColorBitActive[0],RectRenderArea.ColorBitActive[1])
@@ -190,6 +211,8 @@ class RectRenderArea(QtGui.QWidget):
             self.bitValueChanged.emit()  #signal for Register window to check the value
             self.update()
         elif event.button() == QtCore.Qt.RightButton:
+            if(self.bitState is BitState.Blocked):     #just do nothing here , bit is blocked
+                return
             flag= 0    
             for params in WriteReadBitPrivilege:
                 if flag==1:
