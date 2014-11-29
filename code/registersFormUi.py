@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegisterForm.ui'
 #
-# Created: Fri Nov 28 16:35:59 2014
+# Created: Sat Nov 29 03:27:10 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,6 +89,9 @@ class Ui_RegitersForm(object):
         self.createBitmaskButton = QtGui.QPushButton(self.frame)
         self.createBitmaskButton.setGeometry(QtCore.QRect(230, 100, 131, 31))
         self.createBitmaskButton.setObjectName("createBitmaskButton")
+        self.listWidget = QtGui.QListWidget(self.frame)
+        self.listWidget.setGeometry(QtCore.QRect(0, 150, 371, 101))
+        self.listWidget.setObjectName("listWidget")
         self.horizontalLayoutWidget_3 = QtGui.QWidget(RegitersForm)
         self.horizontalLayoutWidget_3.setGeometry(QtCore.QRect(40, 80, 541, 22))
         self.horizontalLayoutWidget_3.setObjectName("horizontalLayoutWidget_3")
