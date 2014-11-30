@@ -9,7 +9,8 @@ import re
 D = True    #debug enebled
 
 class DeviceDescriptionSheet(QtGui.QWidget):
-    
+  
+  
     def __init__(self, parent=None):
         super(DeviceDescriptionSheet, self).__init__(parent)
         self.ui =  Ui_RegitersForm()
@@ -26,13 +27,15 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.registersWidget.setHorizontalHeaderLabels(horizontalHeaderLabel)
         self.ui.registersWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.ui.registersWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.ui.registersWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.ui.registersWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)#to enable context menu
+        self.ui.bitmaskListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)#to enable context menu
         #Qt::CustomContextMenu, the signal customContextMenuRequested() is emitted.
         #self.ui.bitmaskListWidget.addItem(QtGui.QListWidgetItem("BananaTest"))
         #self.ui.bitmaskListWidget.addItem(QtGui.QListWidgetItem("GrapeTest"))
        
         self.addNewRegister()
 
+        
     def initConnections(self):    # setup all connections of signal and slots
         self.ui.createBitmaskButton.clicked.connect(self.createBitmaskDialog)
         #self.ui.cancelButton.clicked.connect(self.close)
@@ -41,7 +44,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
         self.ui.registersWidget.cellClicked.connect(self.updateNameOfSelectedRegister) #update Label name of checked register
         self.ui.registersWidget.cellChanged.connect(self.updateNameOfSelectedRegister)
-        self.ui.registersWidget.customContextMenuRequested.connect(self.fireUpRegTableWidgetContextMenu)
+        self.ui.registersWidget.customContextMenuRequested.connect(self.fireUpRegTableWidgetContextMenu) #to enable context menu 
+        self.ui.bitmaskListWidget.customContextMenuRequested.connect(self.fireUpBitmaskListWidgetContextMenu)#to enable context menu
         
     
     def addNewRegister(self):
@@ -77,17 +81,20 @@ class DeviceDescriptionSheet(QtGui.QWidget):
     def updateRegisterValue(self,val):
         self.regValue = val
         self.ui.Reg8BitValuePlainTextEdit.setPlainText(str(hex(self.regValue)))
-    
+ 
+ 
     def updateAccessParameters(self,list):
         self.acccessPermisionList= list
         if D:
             print("updateAccessParameters(self,list)")
             print( list )
-            
+  
+  
     def updateNameOfSelectedRegister(self,row, column):
         item=QtGui.QTableWidgetItem(self.ui.registersWidget.item(row,0))
         self.ui.nameOfRegLabel.setText(item.text())
-    
+  
+  
     def createBitmaskDialog(self):
         if D:
             print("createBitmaskDialog(self):")
@@ -163,6 +170,24 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.registerList[self.ui.registersWidget.currentRow()][2].bitMaskDestroyed(bitmask)
     
     
+    def fireUpBitmaskListWidgetContextMenu(self,position):
+        menu= QtGui.QMenu(self.ui.bitmaskListWidget)
+        menu.addAction(QtGui.QAction("&Delete", self.ui.bitmaskListWidget, shortcut=QtGui.QKeySequence.Delete,statusTip="remove bitmask", triggered=self.removeBitMask))
+        menu.addAction(QtGui.QAction("&Copy", self.ui.bitmaskListWidget, shortcut="Ctrl+C",statusTip="Copy register item", triggered= self.copyRegItem))
+        menu.popup(self.ui.bitmaskListWidget.mapToGlobal(position))
+        self.positionOfInvokedContextMenu= position
+ 
+ 
+    def removeBitMask(self):
+        if(self.positionOfInvokedContextMenu is None):
+            return
+        nrOfRowToBeRemoved= self.ui.bitmaskListWidget.row(self.ui.bitmaskListWidget.itemAt(self.positionOfInvokedContextMenu))
+        self.positionOfInvokedContextMenu = None
+        self.destroyBitmask(int(self.registerList[self.ui.registersWidget.currentRow()][3][nrOfRowToBeRemoved]['Value'],16))
+        del self.registerList[self.ui.registersWidget.currentRow()][3][nrOfRowToBeRemoved]
+        self.updateBitmaskList(self.ui.registersWidget.currentRow())
+
+ 
     def fireUpRegTableWidgetContextMenu(self,position):
         if D:
             print("fireUpRegTableWidgetContectMenu")
@@ -171,8 +196,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         menu.addAction(QtGui.QAction("&Copy", self.ui.registersWidget, shortcut="Ctrl+C",statusTip="Copy register item", triggered= self.copyRegItem))
         menu.popup(self.ui.registersWidget.mapToGlobal(position))
         self.positionOfInvokedContextMenu= position
-    
-    
+   
+   
     def removeRegisterWidgetTable(self):
         if(self.positionOfInvokedContextMenu is None):
             return
@@ -182,6 +207,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             print("removed")
             print("nrOfRowToBeRemoved %d" %nrOfRowToBeRemoved)
         self.removeRegister(nrOfRowToBeRemoved)
+    
+
     
     def removeRegister(self,regRow):
         self.ui.registersWidget.removeRow(regRow)
@@ -220,8 +247,10 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             elif child.layout() is not None:
                 clearLayout(child.layout())
     
+    
     def copyRegItem(self):
         print("copied") #TODO
+    
     
     def reload8BitRegisterView(self,row,column):
         if(len(self.registerList) > 0):
@@ -264,20 +293,23 @@ class BitMaskDialog(QtGui.QDialog):
         self.setLayout(mainLayout)
 
         self.setWindowTitle("BitMaskDialog")
-    
+   
+   
     def setInteger(self):    
         i, ok = QtGui.QInputDialog.getInteger(self,
                 "SetBitmaskValue", 25, 0, 100, 1)
         if ok:
             self.integerLabel.setText("%d%%" % i)
-    
+   
+   
     def setText(self):
         text, ok = QtGui.QInputDialog.getText(self, "SetBitmaskName",
                 "User name:", QtGui.QLineEdit.Normal,
                 QtCore.QDir.home().dirName())
         if ok and text != '':
             self.textLabel.setText(text)
-    
+   
+   
     def getModifiedValues(self):
         retValues= [(self.General.bitmaskNameEdit.text()),(self.General.bitmaskValueLabel.text()),(self.General.accessAttr.text())] 
         return retValues
