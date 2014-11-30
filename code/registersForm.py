@@ -38,8 +38,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         
     def initConnections(self):    # setup all connections of signal and slots
         self.ui.createBitmaskButton.clicked.connect(self.createBitmaskDialog)
-        #self.ui.cancelButton.clicked.connect(self.close)
-        self.ui.cancelButton.clicked.connect(self.dstrBitMaskTest)
+        self.ui.cancelButton.clicked.connect(self.close)
         self.ui.addRegisterButton.clicked.connect(self.addNewRegister)
         self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
         self.ui.registersWidget.cellClicked.connect(self.updateNameOfSelectedRegister) #update Label name of checked register
@@ -153,10 +152,13 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             
     def updateBitmaskList(self,regListRow):
         self.ui.bitmaskListWidget.clear() 
+        font =QtGui.QFont("Helvetica")
+        font.setPointSize(14);
         for i in range(len(self.registerList[regListRow][3])):
             item =  QtGui.QListWidgetItem(self.registerList[regListRow][3][i]['Name']+'   '+
                                              self.registerList[regListRow][3][i]['Value']+'   '+
                                              self.registerList[regListRow][3][i]['Attr'])
+            item.setFont(font)
             item.setForeground(QtCore.Qt.red)
             item.setBackground(QtCore.Qt.lightGray)
             self.ui.bitmaskListWidget.addItem(item)
@@ -203,6 +205,11 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             return
         nrOfRowToBeRemoved= self.ui.registersWidget.row(self.ui.registersWidget.itemAt(self.positionOfInvokedContextMenu))
         self.positionOfInvokedContextMenu = None
+        if(nrOfRowToBeRemoved == 0):
+            if D:
+                print("Nr of the row =0 , cannot remove this item")
+            return
+
         if D:
             print("removed")
             print("nrOfRowToBeRemoved %d" %nrOfRowToBeRemoved)
