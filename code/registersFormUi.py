@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegisterForm.ui'
 #
-# Created: Sat Nov 29 03:27:10 2014
+# Created: Sat Nov 29 19:29:49 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,9 +89,11 @@ class Ui_RegitersForm(object):
         self.createBitmaskButton = QtGui.QPushButton(self.frame)
         self.createBitmaskButton.setGeometry(QtCore.QRect(230, 100, 131, 31))
         self.createBitmaskButton.setObjectName("createBitmaskButton")
-        self.listWidget = QtGui.QListWidget(self.frame)
-        self.listWidget.setGeometry(QtCore.QRect(0, 150, 371, 101))
-        self.listWidget.setObjectName("listWidget")
+        self.bitmaskListWidget = QtGui.QListWidget(self.frame)
+        self.bitmaskListWidget.setGeometry(QtCore.QRect(0, 150, 371, 101))
+        self.bitmaskListWidget.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed|QtGui.QAbstractItemView.SelectedClicked)
+        self.bitmaskListWidget.setSelectionRectVisible(True)
+        self.bitmaskListWidget.setObjectName("bitmaskListWidget")
         self.horizontalLayoutWidget_3 = QtGui.QWidget(RegitersForm)
         self.horizontalLayoutWidget_3.setGeometry(QtCore.QRect(40, 80, 541, 22))
         self.horizontalLayoutWidget_3.setObjectName("horizontalLayoutWidget_3")
@@ -122,6 +124,7 @@ class Ui_RegitersForm(object):
         self.label.setText(QtGui.QApplication.translate("RegitersForm", "REG: ", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("RegitersForm", "Reg Value:", None, QtGui.QApplication.UnicodeUTF8))
         self.createBitmaskButton.setText(QtGui.QApplication.translate("RegitersForm", "Create_Bitmask", None, QtGui.QApplication.UnicodeUTF8))
+        self.bitmaskListWidget.setSortingEnabled(False)
         self.registersLabel.setText(QtGui.QApplication.translate("RegitersForm", "Registers:", None, QtGui.QApplication.UnicodeUTF8))
         self.bitmaskLabelTitle.setText(QtGui.QApplication.translate("RegitersForm", "Bitmasks:", None, QtGui.QApplication.UnicodeUTF8))
         self.addRegisterButton.setText(QtGui.QApplication.translate("RegitersForm", "Add Register", None, QtGui.QApplication.UnicodeUTF8))

@@ -26,6 +26,10 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.registersWidget.setHorizontalHeaderLabels(horizontalHeaderLabel)
         self.ui.registersWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.ui.registersWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ui.registersWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        #Qt::CustomContextMenu, the signal customContextMenuRequested() is emitted.
+        #self.ui.bitmaskListWidget.addItem(QtGui.QListWidgetItem("BananaTest"))
+        #self.ui.bitmaskListWidget.addItem(QtGui.QListWidgetItem("GrapeTest"))
        
         self.addNewRegister()
 
@@ -37,13 +41,12 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
         self.ui.registersWidget.cellClicked.connect(self.updateNameOfSelectedRegister) #update Label name of checked register
         self.ui.registersWidget.cellChanged.connect(self.updateNameOfSelectedRegister)
-  
+        self.ui.registersWidget.customContextMenuRequested.connect(self.fireUpRegTableWidgetContextMenu)
         
-
     
     def addNewRegister(self):
 
-        if D:
+        if D:    
             print("List LEN %d" %len(self.registerList))
         if(len(self.registerList) > 0):
             self.registerList[self.lastUsedRow][2].hide()
@@ -56,7 +59,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         #newItem = QtGui.QTableWidgetItem(("%s" % pow(1, 1+1)))
         #self.ui.registersWidget.setItem(0, 0, newItem)
         
-        regTuple= (QtGui.QTableWidgetItem(),QtGui.QTableWidgetItem(),Reg8BitMap()) #one whole row and (Reg name widget item / Addres Widget item / bye widget " 
+        regTuple= (QtGui.QTableWidgetItem(),QtGui.QTableWidgetItem(),Reg8BitMap(),list()) #one whole row that contains (Reg name widget item / Addres Widget item / byte widget / list of QListWidgetItems from Bitmas QListWidget (list of dictionaries)   
         self.registerList.append(regTuple)
         
         #view update (all slots and signals are being connected right here )
@@ -68,6 +71,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.lastUsedRow=self.ui.registersWidget.rowCount()-1 
         self.ui.registersWidget.setItem(self.ui.registersWidget.rowCount()-1 , 0, self.registerList[-1][0])
         self.ui.registersWidget.setItem(self.ui.registersWidget.rowCount()-1 , 1, self.registerList[-1][1])
+        self.updateBitmaskList(self.ui.registersWidget.rowCount()-1)
     # Below all definitions of the slots used by this class
     
     def updateRegisterValue(self,val):
@@ -81,7 +85,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             print( list )
             
     def updateNameOfSelectedRegister(self,row, column):
-        item=self.ui.registersWidget.item(row,0)
+        item=QtGui.QTableWidgetItem(self.ui.registersWidget.item(row,0))
         self.ui.nameOfRegLabel.setText(item.text())
     
     def createBitmaskDialog(self):
@@ -108,26 +112,116 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         if(temp[1:] == temp[:-1]):
             if D:
                 print("Permission attrs are equal OK")
+            accessAttr=temp[0]
         else:
             MessageBox.incorrectParamMessage("Permission attributes are not equal in every Bit. They must be equal, Set them correctly and try again !") 
             if D:    
                 print("Permission attrs are different FAILED")
             return
-            
-        bitMaskDialog = BitMaskDialog(self.regValue,self.acccessPermisionList)
+        bitMaskDialog = BitMaskDialog(self.regValue,accessAttr)
         if (bitMaskDialog.exec_()):
             retVal=bitMaskDialog.getModifiedValues()    
             self.registerList[self.ui.registersWidget.currentRow()][2].bitMaskCreated(int(retVal[1],16))
             if D:
                 print(retVal)
                 print("Bitmask value %d" %(int(retVal[1],16)))
+            self.addCreatedBitmask(retVal)
+    
+    
+    def addCreatedBitmask(self,bitmaskParam):
+        if(len(bitmaskParam) is not 3):
+            return
+        newBitMask= {'Name':bitmaskParam[0] , 'Value':bitmaskParam[1] , 'Attr': bitmaskParam[2]}
+        if D:
+            print("New Bitmask Added")
+            print( newBitMask)
+            print("currentRow %d" % self.ui.registersWidget.currentRow())
+            print("Len of Bitmask ListWidget Before %d" % len(self.registerList[self.ui.registersWidget.currentRow()][3]))
+        self.registerList[self.ui.registersWidget.currentRow()][3].append(newBitMask)
+        self.updateBitmaskList(self.ui.registersWidget.currentRow())                                              
+        if D:
+            print("Len of Bitmask ListWidget After %d" % len(self.registerList[self.ui.registersWidget.currentRow()][3]))
+            print ("Len Ofthe list %d" % (len(self.registerList[self.ui.registersWidget.currentRow()][3])))
+            
+            
+    def updateBitmaskList(self,regListRow):
+        self.ui.bitmaskListWidget.clear() 
+        for i in range(len(self.registerList[regListRow][3])):
+            item =  QtGui.QListWidgetItem(self.registerList[regListRow][3][i]['Name']+'   '+
+                                             self.registerList[regListRow][3][i]['Value']+'   '+
+                                             self.registerList[regListRow][3][i]['Attr'])
+            item.setForeground(QtCore.Qt.red)
+            item.setBackground(QtCore.Qt.lightGray)
+            self.ui.bitmaskListWidget.addItem(item)
+    
     
     def dstrBitMaskTest(self):   ##test method
         self.destroyBitmask(0x3)
+    
+    
     def destroyBitmask(self,bitmask):
         self.registerList[self.ui.registersWidget.currentRow()][2].bitMaskDestroyed(bitmask)
     
     
+    def fireUpRegTableWidgetContextMenu(self,position):
+        if D:
+            print("fireUpRegTableWidgetContectMenu")
+        menu= QtGui.QMenu(self.ui.registersWidget)
+        menu.addAction(QtGui.QAction("&Delete", self.ui.registersWidget, shortcut=QtGui.QKeySequence.Delete,statusTip="remove register", triggered=self.removeRegisterWidgetTable))
+        menu.addAction(QtGui.QAction("&Copy", self.ui.registersWidget, shortcut="Ctrl+C",statusTip="Copy register item", triggered= self.copyRegItem))
+        menu.popup(self.ui.registersWidget.mapToGlobal(position))
+        self.positionOfInvokedContextMenu= position
+    
+    
+    def removeRegisterWidgetTable(self):
+        if(self.positionOfInvokedContextMenu is None):
+            return
+        nrOfRowToBeRemoved= self.ui.registersWidget.row(self.ui.registersWidget.itemAt(self.positionOfInvokedContextMenu))
+        self.positionOfInvokedContextMenu = None
+        if D:
+            print("removed")
+            print("nrOfRowToBeRemoved %d" %nrOfRowToBeRemoved)
+        self.removeRegister(nrOfRowToBeRemoved)
+    
+    def removeRegister(self,regRow):
+        self.ui.registersWidget.removeRow(regRow)
+        #self.ui.register8BitHLayout.removeWidget(self.registerList[regRow][2])
+        #self.ui.register8BitHLayout.layout().removeWidget(self.registerList[regRow][2])
+        #del self.registerList[regRow][2]
+        
+        #item =self.ui.register8BitHLayout.itemAt(0)
+        #self.ui.register8BitHLayout.removeWidget(item.widget())
+        #del item
+        
+        #layout = self.ui.register8BitHLayout.layout().takeAt(0)
+        #layout.deleteLater()
+        self.registerList[regRow][2].hide()          #TODO
+        #self.clearLayout(self.ui.register8BitHLayout.layout())
+        print("Adddr:",self.registerList[regRow][2])
+        #child =self.ui.register8BitHLayout.takeAt(0)
+        #del child
+        #self.ui.register8BitHLayout.update()
+        #child = self.ui.register8BitHLayout.itemAt(0)
+        #del child
+        del self.registerList[regRow]        
+        self.updateBitmaskList(regRow-1)
+        self.registerList[regRow-1][2].updateRegisterValue()   
+        self.registerList[regRow-1][2].updateRegAccesPermissionParam()
+        self.registerList[regRow-1][2].show()
+        self.lastUsedRow=self.ui.registersWidget.rowCount()-1 
+        
+
+        #self.lastUsedRow=len(self.registerList)-1
+    def clearLayout(layout):
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget() is not None:
+                child.widget().deleteLater()
+            elif child.layout() is not None:
+                clearLayout(child.layout())
+    
+    def copyRegItem(self):
+        print("copied") #TODO
     
     def reload8BitRegisterView(self,row,column):
         if(len(self.registerList) > 0):
@@ -139,21 +233,21 @@ class DeviceDescriptionSheet(QtGui.QWidget):
                 print(self.lastUsedRow)
                 print(self.registerList[row][2])
         self.ui.register8BitHLayout.addWidget(self.registerList[row][2])
-        self.registerList[row][2].updateRegisterValue()   #TODO 
+        self.registerList[row][2].updateRegisterValue()   
         self.registerList[row][2].updateRegAccesPermissionParam()
         self.registerList[row][2].show()
-        
+        self.updateBitmaskList(row)
         self.lastUsedRow=row
         
     
 
      
 class BitMaskDialog(QtGui.QDialog):
-    def __init__(self, regVal, accessData, parent=None):
+    def __init__(self, regVal, accessAttr, parent=None):
         super(BitMaskDialog, self).__init__(parent)
 
         tabWidget = QtGui.QTabWidget()
-        self.General = GeneralTab(regVal)
+        self.General = GeneralTab(regVal,accessAttr)
         self.Desc = DescriptionTab()
         tabWidget.addTab(self.General, "Bitmask")
         tabWidget.addTab(self.Desc, "Bitmask_Desc")
@@ -185,12 +279,13 @@ class BitMaskDialog(QtGui.QDialog):
             self.textLabel.setText(text)
     
     def getModifiedValues(self):
-        retValues= [(self.General.bitmaskNameEdit.text()),(self.General.bitmaskValueLabel.text())] #TODO 
+        retValues= [(self.General.bitmaskNameEdit.text()),(self.General.bitmaskValueLabel.text()),(self.General.accessAttr.text())] 
         return retValues
+        
 
         
 class GeneralTab(QtGui.QWidget):
-    def __init__(self, regVal, parent=None):
+    def __init__(self, regVal, accessAttr,parent=None):
         super(GeneralTab, self).__init__(parent)
 
         bitmaskNameLabel = QtGui.QLabel("Bitmask Name:")
@@ -199,13 +294,18 @@ class GeneralTab(QtGui.QWidget):
         bitmaskValLabel = QtGui.QLabel("Bitmask Value")
         self.bitmaskValueLabel = QtGui.QLabel(hex(regVal))
         self.bitmaskValueLabel.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
-
+        
+        accessAttrLabel = QtGui.QLabel("Access attribute")
+        self.accessAttr = QtGui.QLabel(accessAttr)
+        self.accessAttr.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
 
         mainLayout = QtGui.QVBoxLayout()
         mainLayout.addWidget(bitmaskNameLabel)
         mainLayout.addWidget(self.bitmaskNameEdit)
         mainLayout.addWidget(bitmaskValLabel)
         mainLayout.addWidget(self.bitmaskValueLabel)
+        mainLayout.addWidget(accessAttrLabel)
+        mainLayout.addWidget(self.accessAttr)
    
         mainLayout.addStretch(1)
         self.setLayout(mainLayout)

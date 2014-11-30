@@ -239,7 +239,7 @@
      <string>Create_Bitmask</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="listWidget">
+   <widget class="QListWidget" name="bitmaskListWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -247,6 +247,15 @@
       <width>371</width>
       <height>101</height>
      </rect>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+    </property>
+    <property name="selectionRectVisible">
+     <bool>true</bool>
+    </property>
+    <property name="sortingEnabled">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>
