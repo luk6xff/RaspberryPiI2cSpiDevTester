@@ -40,6 +40,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.createBitmaskButton.clicked.connect(self.createBitmaskDialog)
         self.ui.saveButton.clicked.connect(self.save)
         self.ui.cancelButton.clicked.connect(self.close)
+        self.ui.loadFileButton.clicked.connect(self.open)
         self.ui.addRegisterButton.clicked.connect(self.addNewRegister)
         self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
         self.ui.registersWidget.cellClicked.connect(self.updateNameOfSelectedRegister) #update Label name of checked register
@@ -308,33 +309,33 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         xmlWriter.setAutoFormatting ( True )
         xmlWriter.setAutoFormattingIndent(1) 
         xmlWriter.writeStartDocument()
-        xmlWriter.writeStartElement("DEVICE")
-        xmlWriter.writeStartElement("NAME")
+        xmlWriter.writeStartElement("device")
+        xmlWriter.writeStartElement("name")
         xmlWriter.writeCharacters(self.ui.deviceNameTextEdit.toPlainText())
         xmlWriter.writeEndElement()
-        xmlWriter.writeStartElement("ADDR")
+        xmlWriter.writeStartElement("address")
         xmlWriter.writeCharacters(self.ui.addressTextEdit.toPlainText())
         xmlWriter.writeEndElement()
-        xmlWriter.writeStartElement("REGISTERS")
+        xmlWriter.writeStartElement("registers")
         
         for i in range(len(self.registerList)):
-            xmlWriter.writeStartElement("REGISTER")
-            xmlWriter.writeStartElement("NAME")
+            xmlWriter.writeStartElement("register")
+            xmlWriter.writeStartElement("name")
             xmlWriter.writeCharacters(self.registerList[i][0].text())
             xmlWriter.writeEndElement()
-            xmlWriter.writeStartElement("ADDRESS")
+            xmlWriter.writeStartElement("address")
             xmlWriter.writeCharacters(self.registerList[i][1].text())
             xmlWriter.writeEndElement()
-            xmlWriter.writeStartElement("BITMASKS")
+            xmlWriter.writeStartElement("bitmasks")
             for j in range(len(self.registerList[i][3])):
-                xmlWriter.writeStartElement("BITMASK")
-                xmlWriter.writeStartElement("NAME")
+                xmlWriter.writeStartElement("bitmask")
+                xmlWriter.writeStartElement("name")
                 xmlWriter.writeCharacters(self.registerList[i][3][j]['Name'])
                 xmlWriter.writeEndElement()
-                xmlWriter.writeStartElement("MASK")
+                xmlWriter.writeStartElement("mask")
                 xmlWriter.writeCharacters(self.registerList[i][3][j]['Value'])
                 xmlWriter.writeEndElement()
-                xmlWriter.writeStartElement("ACCESS_ATTR")
+                xmlWriter.writeStartElement("access_attr")
                 xmlWriter.writeCharacters(self.registerList[i][3][j]['Attr'])
                 xmlWriter.writeEndElement()
                 xmlWriter.writeEndElement()
@@ -345,12 +346,73 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         xmlWriter.writeEndElement()
         xmlWriter.writeEndElement()
         xmlWriter.writeEndDocument()
+     
+    def open(self):
+        self.readXML()
         
-        
-                            
-        
+    def readXML(self):
+        options = QtGui.QFileDialog.Options()
+        filename, filtr = QtGui.QFileDialog.getOpenFileName(self,
+                "Choose a file name", '.', "rd (*.rd)", "", options)
+        if filename:
+            file = QtCore.QFile(filename)
+            if not file.open(QtCore.QIODevice.ReadOnly | QtCore.QIODevice.Text):
+                QtGui.QMessageBox.critical(self, "read I2C_SPI_CHECKER xml file ERROR",
+                    "Couldn't open file %s:\n%s." % (filename, file.errorString()))
+                return      
+        else:           
+            return
+        xmlReader = QtCore.QXmlStreamReader(file)
+        regMap=list()
+       
+        #regMap.append(regTuple)
+        deviceName = str()
+        deviceAddr = str()
+        if D:
+            print("INIT!, devName and Addr")
 
+        while( (not xmlReader.atEnd()) and  (not xmlReader.hasError())):
+            xmlReader.readNext() #just skip the intro
+            if(xmlReader.isStartDocument()):
+                continue
+            if(xmlReader.isStartElement()):
+                if(xmlReader.name()== 'device'):
+                    continue
+                elif(xmlReader.name()=='name'):
+                    deviceName= self.readElementData(xmlReader)
+                elif(xmlReader.name()=='address'):
+                    deviceAddr = self.readElementData(xmlReader)
+                elif(xmlReader.name()=='registers'):
+                    continue
+                elif(xmlReader.name()=='register'):
+                    regMap.append(self.parseRegister(xmlReader))
+                    continue
+                    
+        #print("ERROR! , incompatible xml file")
+        if D:
+            print("DEVICE_NAME %s" %deviceName, "DEVICE_ADDR %s" %deviceAddr)
+     
+    def readElementData(self,xmlReader):
+        if(not xmlReader.isStartElement()):
+            return
+        if D:
+            print("element Name %s" % xmlReader.name())
+        xmlReader.readNext()
+        if(not xmlReader.isCharacters()):
+            return
+        return xmlReader.text()
+
+     
+    def parseRegister(self,xmlReader):
+        regTuple= (str(),str(),str(),list())
+        if((not xmlReader.isStartElement())&&(xmlReader.name=='register' )):
+            return regTuple
+        
+        return  regTuple= (QtGui.QTableWidgetItem(),QtGui.QTableWidgetItem(),Reg8BitMap(),list())
     
+    
+    
+    #think it over
     # class XmlRegisterFile:
     # def __init__(self, list
     

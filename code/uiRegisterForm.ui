@@ -314,6 +314,19 @@
     <string>Add Register</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="loadFileButton">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>380</y>
+     <width>101</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Load File</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

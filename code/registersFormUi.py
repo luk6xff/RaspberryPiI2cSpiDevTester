@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegisterForm.ui'
 #
-# Created: Sat Nov 29 19:29:49 2014
+# Created: Tue Dec  2 22:22:43 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -111,6 +111,9 @@ class Ui_RegitersForm(object):
         self.addRegisterButton = QtGui.QPushButton(RegitersForm)
         self.addRegisterButton.setGeometry(QtCore.QRect(50, 362, 241, 41))
         self.addRegisterButton.setObjectName("addRegisterButton")
+        self.loadFileButton = QtGui.QPushButton(RegitersForm)
+        self.loadFileButton.setGeometry(QtCore.QRect(330, 380, 101, 23))
+        self.loadFileButton.setObjectName("loadFileButton")
 
         self.retranslateUi(RegitersForm)
         QtCore.QMetaObject.connectSlotsByName(RegitersForm)
@@ -128,4 +131,5 @@ class Ui_RegitersForm(object):
         self.registersLabel.setText(QtGui.QApplication.translate("RegitersForm", "Registers:", None, QtGui.QApplication.UnicodeUTF8))
         self.bitmaskLabelTitle.setText(QtGui.QApplication.translate("RegitersForm", "Bitmasks:", None, QtGui.QApplication.UnicodeUTF8))
         self.addRegisterButton.setText(QtGui.QApplication.translate("RegitersForm", "Add Register", None, QtGui.QApplication.UnicodeUTF8))
+        self.loadFileButton.setText(QtGui.QApplication.translate("RegitersForm", "Load File", None, QtGui.QApplication.UnicodeUTF8))
 
