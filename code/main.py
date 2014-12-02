@@ -77,7 +77,7 @@ class MainWindow(QtGui.QMainWindow):
 
         out = QtCore.QTextStream(file)
         QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        out << self.textEdit.toHtml()
+        out << self.textEdit.toHtml()                                                  ## TODO
         QtGui.QApplication.restoreOverrideCursor()
 
         self.statusBar().showMessage("Saved '%s'" % filename, 2000)

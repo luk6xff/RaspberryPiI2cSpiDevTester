@@ -1,3 +1,4 @@
+#uszko 26.11.2014
 from PySide import QtCore, QtGui
 from enum import Enum
 

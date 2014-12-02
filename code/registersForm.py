@@ -38,6 +38,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         
     def initConnections(self):    # setup all connections of signal and slots
         self.ui.createBitmaskButton.clicked.connect(self.createBitmaskDialog)
+        self.ui.saveButton.clicked.connect(self.save)
         self.ui.cancelButton.clicked.connect(self.close)
         self.ui.addRegisterButton.clicked.connect(self.addNewRegister)
         self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
@@ -275,8 +276,84 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.updateBitmaskList(row)
         self.lastUsedRow=row
         
-    
+    #save method
+    def save(self):
+        filename, filtr = QtGui.QFileDialog.getSaveFileName(self,
+                "Choose a file name", '.', "rd (*.rd)")
+        if not filename:
+            return
 
+        file = QtCore.QFile(filename)
+        if not file.open(QtCore.QIODevice.WriteOnly | QtCore.QFile.Text):
+            QtGui.QMessageBox.warning(self, "I2C_SPI_CHECKER",
+                    "Cannot write file %s:\n%s." % (filename, file.errorString()))
+            return
+        QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        self.generateXML(file)
+        QtGui.QApplication.restoreOverrideCursor()
+        #self.statusBar().showMessage("Saved '%s'" % filename, 2000) 
+        
+        # out = QtCore.QTextStream(file)
+        # QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        # out << self.textEdit.toHtml()
+        # QtGui.QApplication.restoreOverrideCursor()
+
+        # self.statusBar().showMessage("Saved '%s'" % filename, 2000)    
+    
+    
+    def generateXML(self,file):
+    #TODO ADD auto checking of correctness of all parameters !!!!
+        xmlWriter = QtCore.QXmlStreamWriter()
+        xmlWriter.setDevice(file)
+        xmlWriter.setAutoFormatting ( True )
+        xmlWriter.setAutoFormattingIndent(1) 
+        xmlWriter.writeStartDocument()
+        xmlWriter.writeStartElement("DEVICE")
+        xmlWriter.writeStartElement("NAME")
+        xmlWriter.writeCharacters(self.ui.deviceNameTextEdit.toPlainText())
+        xmlWriter.writeEndElement()
+        xmlWriter.writeStartElement("ADDR")
+        xmlWriter.writeCharacters(self.ui.addressTextEdit.toPlainText())
+        xmlWriter.writeEndElement()
+        xmlWriter.writeStartElement("REGISTERS")
+        
+        for i in range(len(self.registerList)):
+            xmlWriter.writeStartElement("REGISTER")
+            xmlWriter.writeStartElement("NAME")
+            xmlWriter.writeCharacters(self.registerList[i][0].text())
+            xmlWriter.writeEndElement()
+            xmlWriter.writeStartElement("ADDRESS")
+            xmlWriter.writeCharacters(self.registerList[i][1].text())
+            xmlWriter.writeEndElement()
+            xmlWriter.writeStartElement("BITMASKS")
+            for j in range(len(self.registerList[i][3])):
+                xmlWriter.writeStartElement("BITMASK")
+                xmlWriter.writeStartElement("NAME")
+                xmlWriter.writeCharacters(self.registerList[i][3][j]['Name'])
+                xmlWriter.writeEndElement()
+                xmlWriter.writeStartElement("MASK")
+                xmlWriter.writeCharacters(self.registerList[i][3][j]['Value'])
+                xmlWriter.writeEndElement()
+                xmlWriter.writeStartElement("ACCESS_ATTR")
+                xmlWriter.writeCharacters(self.registerList[i][3][j]['Attr'])
+                xmlWriter.writeEndElement()
+                xmlWriter.writeEndElement()
+            
+            xmlWriter.writeEndElement()
+            xmlWriter.writeEndElement()
+        
+        xmlWriter.writeEndElement()
+        xmlWriter.writeEndElement()
+        xmlWriter.writeEndDocument()
+        
+        
+                            
+        
+
+    
+    # class XmlRegisterFile:
+    # def __init__(self, list
+    
      
 class BitMaskDialog(QtGui.QDialog):
     def __init__(self, regVal, accessAttr, parent=None):
@@ -307,14 +384,6 @@ class BitMaskDialog(QtGui.QDialog):
                 "SetBitmaskValue", 25, 0, 100, 1)
         if ok:
             self.integerLabel.setText("%d%%" % i)
-   
-   
-    def setText(self):
-        text, ok = QtGui.QInputDialog.getText(self, "SetBitmaskName",
-                "User name:", QtGui.QLineEdit.Normal,
-                QtCore.QDir.home().dirName())
-        if ok and text != '':
-            self.textLabel.setText(text)
    
    
     def getModifiedValues(self):
