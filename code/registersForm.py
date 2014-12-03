@@ -364,8 +364,6 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             return
         xmlReader = QtCore.QXmlStreamReader(file)
         regMap=list()
-       
-        #regMap.append(regTuple)
         deviceName = str()
         deviceAddr = str()
         if D:
@@ -386,32 +384,92 @@ class DeviceDescriptionSheet(QtGui.QWidget):
                     continue
                 elif(xmlReader.name()=='register'):
                     regMap.append(self.parseRegister(xmlReader))
-                    continue
-                    
-        #print("ERROR! , incompatible xml file")
+                else: 
+                    break  #TODO error handler
+                
         if D:
+            print("#################LOADING XML FINISHED CORRECTLY#####################")
+            print("#################LOADING XML FINISHED CORRECTLY#####################")
             print("DEVICE_NAME %s" %deviceName, "DEVICE_ADDR %s" %deviceAddr)
+            print("")
+            for i in range( len(regMap)):
+                print("REG_NAME: ", regMap[i][0])
+                print("REG_ADDR: ", regMap[i][1])
+                print("BITMASKS: ")
+                for j in range( len(regMap[i][2])):
+                    print("BITMASK: ", regMap[i][2][j])
+                print("")    
+        xmlReader.clear()
+
+
      
+    def parseRegister(self,xmlReader):
+        #if D:
+        #    print("parseRegister")
+        regParam=() #(str(),str(),str(),list())
+        if((not xmlReader.isStartElement())and(xmlReader.name=='register' )):
+            return regParam #TODO error handler
+
+        while(not ((xmlReader.isEndElement())and (xmlReader.name()=='register'))):
+            xmlReader.readNext()
+            if(xmlReader.isStartElement()):
+                if(xmlReader.name()=='name'):
+                    regParam= regParam+(self.readElementData(xmlReader),)  #name of the register                
+                elif(xmlReader.name()=='address'):
+                    regParam= regParam+(self.readElementData(xmlReader),)  #addr of the register
+                elif(xmlReader.name()=='bitmasks'):
+                    regParam= regParam+(self.parseBitmasks(xmlReader),)  #addr of the register
+                else:
+                    return  regParam #TODO error handler
+            
+        return  regParam
+    
+    def parseBitmasks(self,xmlReader):
+        #if D:
+        #    print("parseBitmasks")
+        bitmaskList=list() 
+        if((not xmlReader.isStartElement())and(xmlReader.name=='bitmasks' )):
+            return bitmaskList #TODO error handler
+        while(not((xmlReader.isEndElement())and (xmlReader.name()=='bitmasks'))):
+            xmlReader.readNext()
+            if(xmlReader.isStartElement()):
+                if(xmlReader.name()=='bitmask'):
+                    bitmaskList.append(self.parseSingleBitmask(xmlReader))
+                else:
+                    return  bitmaskList #TODO error handler
+        return  bitmaskList
+ 
+    def parseSingleBitmask(self,xmlReader):
+        #if D:
+        #    print("parseSingleBitmask")
+        newBitMaskDict={'Name':'' , 'Value':'' , 'Attr':'' } 
+        if((not xmlReader.isStartElement())and(xmlReader.name=='bitmask' )):
+            return newBitMaskDict #TODO error handler
+        while(not ((xmlReader.isEndElement())and (xmlReader.name()=='bitmask'))):
+            xmlReader.readNext()
+            if(xmlReader.isStartElement()):
+
+                if(xmlReader.name()=='name'):
+                    newBitMaskDict['Name']= self.readElementData(xmlReader) #name of the register
+                elif(xmlReader.name()=='mask'):
+                    newBitMaskDict['Value']= self.readElementData(xmlReader)  #addr of the register
+                elif(xmlReader.name()=='access_attr'):
+                    newBitMaskDict['Attr']= self.readElementData(xmlReader)
+                else:
+                    return newBitMaskDict #TODO error handler
+        return  newBitMaskDict 
+        
+        
+        
     def readElementData(self,xmlReader):
         if(not xmlReader.isStartElement()):
             return
-        if D:
-            print("element Name %s" % xmlReader.name())
+        #if D:
+        #    print("element Name %s" % xmlReader.name())
         xmlReader.readNext()
         if(not xmlReader.isCharacters()):
             return
         return xmlReader.text()
-
-     
-    def parseRegister(self,xmlReader):
-        regTuple= (str(),str(),str(),list())
-        if((not xmlReader.isStartElement())&&(xmlReader.name=='register' )):
-            return regTuple
-        
-        return  regTuple= (QtGui.QTableWidgetItem(),QtGui.QTableWidgetItem(),Reg8BitMap(),list())
-    
-    
-    
     #think it over
     # class XmlRegisterFile:
     # def __init__(self, list
