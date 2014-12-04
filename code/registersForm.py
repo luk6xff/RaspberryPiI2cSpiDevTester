@@ -20,6 +20,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.initConnections()
         StyleIcon.setStyleAndIcon(self)
         
+        
    
     def setItems(self):
         horizontalHeaderLabel = ['Name','Address']
@@ -315,11 +316,48 @@ class DeviceDescriptionSheet(QtGui.QWidget):
      
 
     def checkParamCorrectnessBeforeSave(self):
+        #TODO
+    
         return True
 
      
     #save method
     def save(self):
+        QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        xml = XmlRegister(self.registerList,self.getDeviceName(),self.getDeviceAddr())
+        xml.generateXML()
+        QtGui.QApplication.restoreOverrideCursor()
+        # self.statusBar().showMessage("Saved '%s'" % filename, 2000)    
+    
+    
+    def openXMLFile(self):
+        xml = XmlRegister()
+        regMap,devName,devAddr= xml.readXML()
+        if((regMap is not None) and (devName is not None) and (devAddr is not None)):
+            self.updateUiWithNewXml(regMap,devName,devAddr)
+
+    def updateUiWithNewXml(self, regList,deviceName,deviceAddr):
+        #if(len(regList)!=3):
+        #    return
+        self.removeAllRegisters()
+        self.setDeviceName(deviceName)
+        self.setDeviceAddr(deviceAddr)       
+        for i in range(len(regList)):
+            self.addNewRegister(regList[i])
+
+        
+        
+        
+    #private class for operating on XML file 
+class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs correctly
+
+    def __init__(self,regList=None,devName=None,devAddr=None, parent=None):
+        super(XmlRegister, self).__init__(parent)
+        self.registerList= regList
+        self.devAddr= devAddr
+        self.devName= devName
+    
+    def openWriteFileDialog(self):
         filename, filtr = QtGui.QFileDialog.getSaveFileName(self,
                 "Choose a file name", '.', "rd (*.rd)")
         if not filename:
@@ -330,14 +368,22 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             QtGui.QMessageBox.warning(self, "I2C_SPI_CHECKER",
                     "Cannot write file %s:\n%s." % (filename, file.errorString()))
             return
-        QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        self.generateXML(file)
-        QtGui.QApplication.restoreOverrideCursor()
-        # self.statusBar().showMessage("Saved '%s'" % filename, 2000)    
+        else:
+            return file
+
     
-    
-    def generateXML(self,file):
+    def generateXML(self):
     #TODO ADD auto checking of correctness of all parameters !!!!
+    
+        if(self.registerList==None or self.devName==None or self.devAddr==None):
+            if D:
+                print("INCORRECT initialisation of the xml object")
+            return
+        
+        file = self.openWriteFileDialog()
+        if(not file):
+            return
+
         xmlWriter = QtCore.QXmlStreamWriter()
         xmlWriter.setDevice(file)
         xmlWriter.setAutoFormatting ( True )
@@ -345,10 +391,10 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         xmlWriter.writeStartDocument()
         xmlWriter.writeStartElement("device")
         xmlWriter.writeStartElement("name")
-        xmlWriter.writeCharacters(self.getDeviceName())
+        xmlWriter.writeCharacters(self.devName)
         xmlWriter.writeEndElement()
         xmlWriter.writeStartElement("address")
-        xmlWriter.writeCharacters(self.getDeviceAddr())
+        xmlWriter.writeCharacters(self.devAddr)
         xmlWriter.writeEndElement()
         xmlWriter.writeStartElement("registers")
         
@@ -380,10 +426,9 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         xmlWriter.writeEndElement()
         xmlWriter.writeEndElement()
         xmlWriter.writeEndDocument()
-     
-    def openXMLFile(self):
-        self.readXML()
-        
+
+
+
     def readXML(self):
         options = QtGui.QFileDialog.Options()
         filename, filtr = QtGui.QFileDialog.getOpenFileName(self,
@@ -423,6 +468,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         if(xmlReader.hasError()):
             QtGui.QMessageBox.critical(self, "I2C_SPI_CHECKER parse xml file ERROR",
                     "Failed string %s." % ( xmlReader.errorString()))
+            return
             
         else:    
             if D:
@@ -437,9 +483,9 @@ class DeviceDescriptionSheet(QtGui.QWidget):
                     for j in range( len(regMap[i][2])):
                         print("BITMASK: ", regMap[i][2][j])
                     print("")
-            self.updateUiWithNewXml(regMap,deviceName,deviceAddr)
+        
         xmlReader.clear()   
-
+        return (regMap,deviceName,deviceAddr)
 
      
     def parseRegister(self,xmlReader):
@@ -457,7 +503,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
                 elif(xmlReader.name()=='address'):
                     regParam= regParam+(self.readElementData(xmlReader),)  #addr of the register
                 elif(xmlReader.name()=='bitmasks'):
-                    regParam= regParam+(self.parseBitmasks(xmlReader),)  #addr of the register
+                    regParam= regParam+(self.parseBitmasks(xmlReader),)  #bitmasks of the register
                 else:
                     return  regParam #TODO error handler
             
@@ -509,25 +555,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         if(not xmlReader.isCharacters()):
             return
         return xmlReader.text()
-        
-        
-        
-    def updateUiWithNewXml(self, regList,deviceName,deviceAddr):
-        #if(len(regList)!=3):
-        #    return
-        self.removeAllRegisters()
-        self.setDeviceName(deviceName)
-        self.setDeviceAddr(deviceAddr)       
-        for i in range(len(regList)):
-            print("SIAJŁA" ,regList[i][2], "LENS SD",len(regList[i][2]) )
-            self.addNewRegister(regList[i])
-
-        
-        
-        
-    #think it over
-    # class XmlRegisterFile:
-    # def __init__(self, list
+    
+  
     
      
 class BitMaskDialog(QtGui.QDialog):
