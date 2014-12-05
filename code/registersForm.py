@@ -85,7 +85,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
     # Below all definitions of the slots used by this class
     def updateRegisterValue(self,val):
         self.regValue = val
-        self.ui.Reg8BitValuePlainTextEdit.setPlainText(str(hex(self.regValue)))
+        self.ui.Reg8BitValuePlainTextEdit.setPlainText("0x%02x" %(self.regValue))
  
  
     def updateAccessParameters(self,list):
@@ -231,25 +231,10 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             raise Exception("regRow less than ZERO ERROR")
         
         self.ui.registersWidget.removeRow(regRow)
-        #self.ui.register8BitHLayout.removeWidget(self.registerList[regRow][2])
-        #self.ui.register8BitHLayout.layout().removeWidget(self.registerList[regRow][2])
-        #del self.registerList[regRow][2]
-        
-        #item =self.ui.register8BitHLayout.itemAt(0)
-        #self.ui.register8BitHLayout.removeWidget(item.widget())
-        #del item
-        
-        #layout = self.ui.register8BitHLayout.layout().takeAt(0)
-        #layout.deleteLater()
         self.registerList[regRow][2].hide()          #TODO
         #self.clearLayout(self.ui.register8BitHLayout.layout())
         if D:
             print("REMOVED: :",self.registerList[regRow][2])
-        #child =self.ui.register8BitHLayout.takeAt(0)
-        #del child
-        #self.ui.register8BitHLayout.update()
-        #child = self.ui.register8BitHLayout.itemAt(0)
-        #del child
         del self.registerList[regRow]
         if(regRow>0):                           #show the last not removed row
             self.updateBitmaskList(regRow-1)
@@ -257,6 +242,9 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             self.registerList[regRow-1][2].updateRegAccesPermissionParam()
             self.registerList[regRow-1][2].show()
         self.lastUsedRow=self.ui.registersWidget.rowCount()-1 
+
+            
+        
      
     
     
@@ -421,8 +409,14 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
                 xmlWriter.writeEndElement()
             
             xmlWriter.writeEndElement()
+            access_list= self.registerList[i][2].getRegAccessPerametersList()
+            xmlWriter.writeStartElement("byte_access_attr")
+            for i in range(len( access_list)):
+                xmlWriter.writeStartElement("access_attr")
+                xmlWriter.writeCharacters(access_list[i])
+                xmlWriter.writeEndElement()
             xmlWriter.writeEndElement()
-        
+            xmlWriter.writeEndElement()
         xmlWriter.writeEndElement()
         xmlWriter.writeEndElement()
         xmlWriter.writeEndDocument()
@@ -482,6 +476,7 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
                     print("BITMASKS: ")
                     for j in range( len(regMap[i][2])):
                         print("BITMASK: ", regMap[i][2][j])
+                    print("REG_ACCESS_ATTRIBUTES: ",regMap[i][3])
                     print("")
         
         xmlReader.clear()   
@@ -504,6 +499,8 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
                     regParam= regParam+(self.readElementData(xmlReader),)  #addr of the register
                 elif(xmlReader.name()=='bitmasks'):
                     regParam= regParam+(self.parseBitmasks(xmlReader),)  #bitmasks of the register
+                elif(xmlReader.name()=='byte_access_attr'):
+                    regParam= regParam+(self.parseRegAccessAttr(xmlReader),)  #access parameters of the register
                 else:
                     return  regParam #TODO error handler
             
@@ -543,6 +540,22 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
                 else:
                     return newBitMaskDict #TODO error handler
         return  newBitMaskDict 
+        
+    def parseRegAccessAttr(self,xmlReader): #################################################################################
+        #if D:
+        #    print("parseSingleBitmask")
+        accessAttrList= list()
+        if((not xmlReader.isStartElement())and(xmlReader.name=='byte_access_attr' )):
+            return accessAttrList #TODO error handler
+        while(not ((xmlReader.isEndElement())and (xmlReader.name()=='byte_access_attr'))):
+            xmlReader.readNext()
+            if(xmlReader.isStartElement()):
+
+                if(xmlReader.name()=='access_attr'):
+                    accessAttrList.append(self.readElementData(xmlReader)) #counted from the LSB 
+                else:
+                    return accessAttrList #TODO error handler
+        return  accessAttrList 
         
         
         
@@ -598,7 +611,7 @@ class GeneralTab(QtGui.QWidget):
         self.bitmaskNameEdit = QtGui.QLineEdit()
 
         bitmaskValLabel = QtGui.QLabel("Bitmask Value")
-        self.bitmaskValueLabel = QtGui.QLabel(hex(regVal))
+        self.bitmaskValueLabel = QtGui.QLabel("0x%02x" %(regVal))
         self.bitmaskValueLabel.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
         
         accessAttrLabel = QtGui.QLabel("Access attribute")

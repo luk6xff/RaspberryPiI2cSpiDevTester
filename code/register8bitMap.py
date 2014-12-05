@@ -61,7 +61,10 @@ class Reg8BitMap(QtGui.QWidget):
         if D:
             print(self.byteRegAccessList)         
         self.regAccessPermissionChanged.emit(self.byteRegAccessList)
-        
+    
+    def getRegAccessPerametersList(self):
+        return self.byteRegAccessList
+    
     def bitMaskCreated(self, bitmask): ######## invoked after creation of bitmask 
         for i in range(Reg8BitMap.NumOfBits):
             if(bitmask & (1<<i)):
@@ -103,8 +106,8 @@ class BitState(Enum):
     
 class WriteReadBitPrivilege(Enum):
     NA="N/A"
-    Write=" W "
-    Read=" R "
+    Write="W"
+    Read="R"
     WriteRead="R/W"
     
 
@@ -200,7 +203,10 @@ class RectRenderArea(QtGui.QWidget):
         if D:
             print("PAINTING...")
         painter.drawPath(self.path)
-        painter.drawText(25,45, str(self.writeReadAttribute.value));
+        attrString = str(self.writeReadAttribute.value)
+        if(len(attrString)==1):
+            attrString = " "+attrString+" "
+        painter.drawText(25,45, attrString);
         if D:
             print("%s" % str(self.writeReadAttribute.name))
         
