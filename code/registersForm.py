@@ -6,7 +6,7 @@ from register8bitMap import Reg8BitMap
 from messageBoxWrapper import MessageBox
 import re
 
-D = True    #debug enebled
+D = False    #debug enebled
 
 class DeviceDescriptionSheet(QtGui.QWidget):
   
@@ -95,7 +95,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             print( list )
   
     
-    def updateRegAccessAttributes(self,attrList,regNr):  ##########################################
+    def updateRegAccessAttributes(self,attrList,regNr):  
         if(attrList is None or regNr<0):
             return 
         self.registerList[regNr][2].setRegAccesPermissionParam(attrList)
@@ -187,7 +187,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
  
  
     def removeBitMask(self):
-        if(self.positionOfInvokedContextMenu is None):
+        if(self.positionOfInvokedContextMenu is None or self.ui.bitmaskListWidget.count() ==0):
             return
         nrOfRowToBeRemoved= self.ui.bitmaskListWidget.row(self.ui.bitmaskListWidget.itemAt(self.positionOfInvokedContextMenu))
         self.positionOfInvokedContextMenu = None

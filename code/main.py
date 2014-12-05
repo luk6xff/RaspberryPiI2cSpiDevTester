@@ -9,6 +9,9 @@ from sshconnection import SshConnection
 from messageBoxWrapper import MessageBox
 from styleIcon import StyleIcon
 from registersForm import DeviceDescriptionSheet
+from registersForm import XmlRegister
+
+D = True
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self):
@@ -24,6 +27,9 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setWindowTitle("I2C_SPI_CHECKER")
         self.setGeometry(500,500,500,500)
+        r = self.geometry()
+        r.moveCenter(QtGui.QApplication.desktop().availableGeometry().center())
+        self.setGeometry(r)
 
     def newDevice(self):
         self.myDevice = DeviceDescriptionSheet()
@@ -41,10 +47,11 @@ class MainWindow(QtGui.QMainWindow):
         self.hostname = hostname
         self.username = username
         self.password = password
-        print("hostname: " + self.hostname)
-        print("usrname: " + self.username)
-        print("password: " + self.password)
-        print('paramiko connection starts')
+        if D:
+            print("hostname: " + self.hostname)
+            print("usrname: " + self.username)
+            print("password: " + self.password)
+            print('paramiko connection starts')
         self.sshClient= SshConnection(self.hostname, self.username,self.password )
         #self.sshClient= SshConnection('172.16.1.102','pi', 'raspberry')  #for tests 
         self.sshClient.connect() #try to connect to raspberry
@@ -56,13 +63,22 @@ class MainWindow(QtGui.QMainWindow):
             return
         if (self.console is None):
             self.console = SshConsole(self.sshClient)
-            print('Console init')
+            if D:
+                print('Console init')
             self.console.exec_()
             self.console =None
         else:
             print('Console is already being displayed!')
         return
-
+        
+    def obtainDeviceLibrary(self):
+        xml = XmlRegister()
+        regMap,devName,devAddr= xml.readXML()
+        if D:
+            print(regMap)
+            print(devName)
+            print(devAddr)
+            
     def save(self):
         filename, filtr = QtGui.QFileDialog.getSaveFileName(self,
                 "Choose a file name", '.', "rd (*.rd)")
@@ -83,13 +99,14 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage("Saved '%s'" % filename, 2000)
 
     def undo(self):
-        document = self.textEdit.document()
-        document.undo()
+        #document = self.textEdit.document()
+        #document.undo()
+        return
 
 
     def about(self):
         QtGui.QMessageBox.about(self, "About I2C_SPI_CHECKER",
-                "project uszko kalicki")
+                "project uszko kalicki december 2014")
 
     def setIcon(self):
         appIcon=QtGui.QIcon('images/icon.png')
@@ -97,16 +114,21 @@ class MainWindow(QtGui.QMainWindow):
 
     def createActions(self):
 
-        self.createConnection = QtGui.QAction(QtGui.QIcon('images/connection.png'),
+        self.createConnectionAct = QtGui.QAction(QtGui.QIcon('images/connection.png'),
                 "&Create SSH connection", self, shortcut=QtGui.QKeySequence.New,
                 statusTip="Create SSH connection to your Raspberry PI : ] ",
                 triggered=self.sshConnectionSetup)
 
-        self.newDeviceAct = QtGui.QAction(QtGui.QIcon('images/newDevice.png'),
-                "&Add New Device", self, shortcut=QtGui.QKeySequence.New,
+        self.createNewDeviceAct = QtGui.QAction(QtGui.QIcon('images/newDevice.png'),
+                "&Create New Device", self, shortcut=QtGui.QKeySequence.New,
                 statusTip="Create a new form of registers of a new device",
                 triggered=self.newDevice)
-
+        
+        self.openDeviceRegFormAct= QtGui.QAction(QtGui.QIcon('images/newForm.png'),
+                "&Open device register form", self, shortcut=QtGui.QKeySequence.Open,
+                statusTip="Obtain and read a form of registers of a new device",
+                triggered=self.obtainDeviceLibrary)
+        
         self.saveAct = QtGui.QAction(QtGui.QIcon('images/save.png'),
                 "&Save...", self, shortcut=QtGui.QKeySequence.Save,
                 statusTip="Save the new added device",
@@ -133,7 +155,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def createMenus(self):
         self.fileMenu = self.menuBar().addMenu("&File")
-        self.fileMenu.addAction(self.newDeviceAct)
+        self.fileMenu.addAction(self.openDeviceRegFormAct)
+        self.fileMenu.addAction(self.createNewDeviceAct)
         self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.quitAct)
@@ -151,8 +174,9 @@ class MainWindow(QtGui.QMainWindow):
 
     def createToolBars(self):
         self.fileToolBar = self.addToolBar("File")
-        self.fileToolBar.addAction(self.createConnection)
-        self.fileToolBar.addAction(self.newDeviceAct)
+        self.fileToolBar.addAction(self.createConnectionAct)
+        self.fileToolBar.addAction(self.openDeviceRegFormAct)
+        self.fileToolBar.addAction(self.createNewDeviceAct)
         self.fileToolBar.addAction(self.saveAct)
         self.fileToolBar.addAction(self.consoleAct)
         self.editToolBar = self.addToolBar("Edit")
