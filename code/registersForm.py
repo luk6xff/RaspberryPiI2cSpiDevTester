@@ -94,7 +94,13 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             print("updateAccessParameters(self,list)")
             print( list )
   
-  
+    
+    def updateRegAccessAttributes(self,attrList,regNr):  ##########################################
+        if(attrList is None or regNr<0):
+            return 
+        self.registerList[regNr][2].setRegAccesPermissionParam(attrList)
+        
+    
     def updateNameOfSelectedRegister(self,row, column):
         item=QtGui.QTableWidgetItem(self.ui.registersWidget.item(row,0))
         self.ui.nameOfRegLabel.setText(item.text())
@@ -331,7 +337,9 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.setDeviceName(deviceName)
         self.setDeviceAddr(deviceAddr)       
         for i in range(len(regList)):
+            #self.updateAccessParameters(regList[i][3])
             self.addNewRegister(regList[i])
+            self.updateRegAccessAttributes(regList[i][3],i)
 
         
         
@@ -541,9 +549,9 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
                     return newBitMaskDict #TODO error handler
         return  newBitMaskDict 
         
-    def parseRegAccessAttr(self,xmlReader): #################################################################################
+    def parseRegAccessAttr(self,xmlReader): 
         #if D:
-        #    print("parseSingleBitmask")
+        #    print("parseRegAccessAttr")
         accessAttrList= list()
         if((not xmlReader.isStartElement())and(xmlReader.name=='byte_access_attr' )):
             return accessAttrList #TODO error handler
