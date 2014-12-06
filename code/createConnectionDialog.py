@@ -1,7 +1,7 @@
 #uszko 21.11.2014
 
 
-from PySide.QtCore import Qt
+from PySide import QtCore, QtGui
 from PySide.QtGui import (QDialog, QLabel, QTextEdit, QLineEdit, 
                           QDialogButtonBox, QGridLayout, QVBoxLayout)
 
@@ -9,7 +9,7 @@ class ConnectionDialog(QDialog):
 
     def __init__(self, parent=None):
         super(ConnectionDialog, self).__init__(parent)
-
+                
         hostnameLabel = QLabel("Hostname")
         usernameLabel = QLabel("Username")
         passwordLabel = QLabel("Password")
@@ -19,7 +19,13 @@ class ConnectionDialog(QDialog):
         self.hostnameText = QLineEdit()
         self.usernameText = QLineEdit()
         self.passwordText = QLineEdit()
-
+        
+        self.settings = QtCore.QSettings('UszkoKalicki', 'i2cSpiChecker')
+        self.accessData = self.settings.value('accessDataList')
+        if(len(self.accessData)==3):
+            self.hostnameText.insert(self.accessData[0])
+            self.usernameText.insert(self.accessData[1])
+            self.passwordText.insert(self.accessData[2])
         grid = QGridLayout()
         grid.setColumnStretch(1, 3)
         grid.addWidget(hostnameLabel, 0, 0)
@@ -40,6 +46,7 @@ class ConnectionDialog(QDialog):
 
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.reject)
+        self.accepted.connect(self.saveRecentAccessParameters)
 
     # @property lets us to retrieve data by CreateConnectionDialog.getHostname
     @property
@@ -54,6 +61,13 @@ class ConnectionDialog(QDialog):
     def getPassword(self):
         return self.passwordText.text()
 
+    def saveRecentAccessParameters(self):
+        accessData= [self.getHostname,self.getUsername,self.getPassword]
+        self.settings.setValue('accessDataList', accessData )
+
+
+        
+        
 #DEBUG
 if __name__ == "__main__":
     import sys

@@ -31,23 +31,21 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.registersWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)#to enable context menu
         self.ui.bitmaskListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)#to enable context menu
         #Qt::CustomContextMenu, the signal customContextMenuRequested() is emitted.
-        #self.ui.bitmaskListWidget.addItem(QtGui.QListWidgetItem("BananaTest"))
-        #self.ui.bitmaskListWidget.addItem(QtGui.QListWidgetItem("GrapeTest"))
        
         self.addNewRegister()
 
         
     def initConnections(self):    # setup all connections of signal and slots
-        self.ui.createBitmaskButton.clicked.connect(self.createBitmaskDialog)
-        self.ui.saveButton.clicked.connect(self.save)
+        self.ui.createBitmaskButton.clicked.connect(self.__createBitmaskDialog)
+        self.ui.saveButton.clicked.connect(self.__save)
         self.ui.cancelButton.clicked.connect(self.close)
-        self.ui.loadFileButton.clicked.connect(self.openXMLFile)
+        self.ui.loadFileButton.clicked.connect(self.__openXMLFile)
         self.ui.addRegisterButton.clicked.connect(self.addNewRegister)
-        self.ui.registersWidget.cellClicked.connect(self.reload8BitRegisterView)
-        self.ui.registersWidget.cellClicked.connect(self.updateNameOfSelectedRegister) #update Label name of checked register
-        self.ui.registersWidget.cellChanged.connect(self.updateNameOfSelectedRegister)
-        self.ui.registersWidget.customContextMenuRequested.connect(self.fireUpRegTableWidgetContextMenu) #to enable context menu 
-        self.ui.bitmaskListWidget.customContextMenuRequested.connect(self.fireUpBitmaskListWidgetContextMenu)#to enable context menu
+        self.ui.registersWidget.cellClicked.connect(self.__reload8BitRegisterView)
+        self.ui.registersWidget.cellClicked.connect(self.__updateNameOfSelectedRegister) #update Label name of checked register
+        self.ui.registersWidget.cellChanged.connect(self.__updateNameOfSelectedRegister)
+        self.ui.registersWidget.customContextMenuRequested.connect(self.__fireUpRegTableWidgetContextMenu) #to enable context menu 
+        self.ui.bitmaskListWidget.customContextMenuRequested.connect(self.__fireUpBitmaskListWidgetContextMenu)#to enable context menu
         
     
     def addNewRegister(self,regList=None):
@@ -65,50 +63,50 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             singleRegList= [QtGui.QTableWidgetItem(),QtGui.QTableWidgetItem(),Reg8BitMap(),list()] #one whole row that contains (Reg name widget item / Addres Widget item / byte widget / list of QListWidgetItems from Bitmas QListWidget (list of dictionaries)   
         self.registerList.append(singleRegList)
         #view update (all slots and signals are being connected right here )
-        self.registerList[-1][2].regValueChanged.connect(self.updateRegisterValue)
-        self.registerList[-1][2].regAccessPermissionChanged.connect(self.updateAccessParameters)
+        self.registerList[-1][2].regValueChanged.connect(self.__updateRegisterValue)
+        self.registerList[-1][2].regAccessPermissionChanged.connect(self.__updateAccessParameters)
         self.ui.register8BitHLayout.addWidget(self.registerList[-1][2])
         if(regList is not None):
             for i in range(len(regList[2])):
-                self.addCreatedBitmask(regList[2][i])
+                self.__addCreatedBitmask(regList[2][i])
           
         self.registerList[-1][2].updateRegAccesPermissionParam()
         self.ui.registersWidget.setItem(self.ui.registersWidget.rowCount()-1 , 0, self.registerList[-1][0])
         self.ui.registersWidget.setItem(self.ui.registersWidget.rowCount()-1 , 1, self.registerList[-1][1])
-        self.updateBitmaskList(self.ui.registersWidget.rowCount()-1)
+        self.__updateBitmaskList(self.ui.registersWidget.rowCount()-1)
         self.registerList[-1][2].updateRegisterValue()
         self.lastUsedRow=self.ui.registersWidget.rowCount()-1
-        self.reload8BitRegisterView(self.ui.registersWidget.rowCount()-1,0)
+        self.__reload8BitRegisterView(self.ui.registersWidget.rowCount()-1,0)
         
         
         
     # Below all definitions of the slots used by this class
-    def updateRegisterValue(self,val):
+    def __updateRegisterValue(self,val):
         self.regValue = val
         self.ui.Reg8BitValuePlainTextEdit.setPlainText("0x%02x" %(self.regValue))
  
  
-    def updateAccessParameters(self,list):
+    def __updateAccessParameters(self,list):
         self.acccessPermisionList= list
         if D:
-            print("updateAccessParameters(self,list)")
+            print("__updateAccessParameters(self,list)")
             print( list )
   
     
-    def updateRegAccessAttributes(self,attrList,regNr):  
+    def __updateRegAccessAttributes(self,attrList,regNr):  
         if(attrList is None or regNr<0):
             return 
         self.registerList[regNr][2].setRegAccesPermissionParam(attrList)
         
     
-    def updateNameOfSelectedRegister(self,row, column):
+    def __updateNameOfSelectedRegister(self,row, column):
         item=QtGui.QTableWidgetItem(self.ui.registersWidget.item(row,0))
         self.ui.nameOfRegLabel.setText(item.text())
   
   
-    def createBitmaskDialog(self):
+    def __createBitmaskDialog(self):
         if D:
-            print("createBitmaskDialog(self):")
+            print("__createBitmaskDialog(self):")
         matchRegVal=re.match(r'[0-9]',(str(self.regValue)),re.I)
         if(matchRegVal):
             if D:
@@ -139,10 +137,10 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         bitMaskDialog = BitMaskDialog(self.regValue,accessAttr)
         if (bitMaskDialog.exec_()):
             retVal=bitMaskDialog.getModifiedValues()    
-            self.addCreatedBitmask(retVal)
+            self.__addCreatedBitmask(retVal)
     
     
-    def addCreatedBitmask(self,bitmaskParam):
+    def __addCreatedBitmask(self,bitmaskParam):
         if(len(bitmaskParam) is not 3):
             return
         self.registerList[self.ui.registersWidget.currentRow()][2].bitMaskCreated(int(bitmaskParam['Value'],16))
@@ -152,12 +150,12 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         # if D:
             # print("New Bitmask Added")
         self.registerList[self.ui.registersWidget.currentRow()][3].append(newBitMask)
-        self.updateBitmaskList(self.ui.registersWidget.currentRow())                                              
+        self.__updateBitmaskList(self.ui.registersWidget.currentRow())                                              
         # if D:
             # print("Len of Bitmask ListWidget After %d" % len(self.registerList[self.ui.registersWidget.currentRow()][3]))
             # print ("Len Ofthe list %d" % (len(self.registerList[self.ui.registersWidget.currentRow()][3])))
             
-    def updateBitmaskList(self,regListRow):
+    def __updateBitmaskList(self,regListRow):
         self.ui.bitmaskListWidget.clear() 
         font =QtGui.QFont("Helvetica")
         font.setPointSize(14);
@@ -172,50 +170,50 @@ class DeviceDescriptionSheet(QtGui.QWidget):
     
     
     
-    def destroyBitmask(self,bitmask,regRow):
+    def __destroyBitmask(self,bitmask,regRow):
         if regRow<self.ui.registersWidget.rowCount()-1:
             return
         self.registerList[regRow][2].bitMaskDestroyed(bitmask)
     
     
-    def fireUpBitmaskListWidgetContextMenu(self,position):
+    def __fireUpBitmaskListWidgetContextMenu(self,position):
         menu= QtGui.QMenu(self.ui.bitmaskListWidget)
-        menu.addAction(QtGui.QAction("&Delete", self.ui.bitmaskListWidget, shortcut=QtGui.QKeySequence.Delete,statusTip="remove bitmask", triggered=self.removeBitMask))
-        menu.addAction(QtGui.QAction("&Copy", self.ui.bitmaskListWidget, shortcut="Ctrl+C",statusTip="Copy register item", triggered= self.copyRegItem))
+        menu.addAction(QtGui.QAction("&Delete", self.ui.bitmaskListWidget, shortcut=QtGui.QKeySequence.Delete,statusTip="remove bitmask", triggered=self.__removeBitMask))
+        menu.addAction(QtGui.QAction("&Copy", self.ui.bitmaskListWidget, shortcut="Ctrl+C",statusTip="Copy register item", triggered= self.__copyRegItem))
         menu.popup(self.ui.bitmaskListWidget.mapToGlobal(position))
         self.positionOfInvokedContextMenu= position
  
  
-    def removeBitMask(self):
+    def __removeBitMask(self):
         if(self.positionOfInvokedContextMenu is None or self.ui.bitmaskListWidget.count() ==0):
             return
         nrOfRowToBeRemoved= self.ui.bitmaskListWidget.row(self.ui.bitmaskListWidget.itemAt(self.positionOfInvokedContextMenu))
         self.positionOfInvokedContextMenu = None
-        self.destroyBitmask(int(self.registerList[self.ui.registersWidget.currentRow()][3][nrOfRowToBeRemoved]['Value'],16),self.ui.registersWidget.currentRow())
+        self.__destroyBitmask(int(self.registerList[self.ui.registersWidget.currentRow()][3][nrOfRowToBeRemoved]['Value'],16),self.ui.registersWidget.currentRow())
         del self.registerList[self.ui.registersWidget.currentRow()][3][nrOfRowToBeRemoved]
-        self.updateBitmaskList(self.ui.registersWidget.currentRow())
+        self.__updateBitmaskList(self.ui.registersWidget.currentRow())
     
-    def removeAllBitMasksFromRegister(self,row):
+    def __removeAllBitMasksFromRegister(self,row):
         if(row<self.ui.registersWidget.rowCount()-1):
             return       
         for i in range(self.ui.bitmaskListWidget.count()):
-            self.destroyBitmask(int(self.registerList[row][3][i]['Value'],16),row)
+            self.__destroyBitmask(int(self.registerList[row][3][i]['Value'],16),row)
             del self.registerList[self.ui.registersWidget.currentRow()][3][i]
         self.ui.bitmaskListWidget.clear() 
-        #self.updateBitmaskList(row)
+        #self.__updateBitmaskList(row)
 
  
-    def fireUpRegTableWidgetContextMenu(self,position):
+    def __fireUpRegTableWidgetContextMenu(self,position):
         if D:
             print("fireUpRegTableWidgetContectMenu")
         menu= QtGui.QMenu(self.ui.registersWidget)
-        menu.addAction(QtGui.QAction("&Delete", self.ui.registersWidget, shortcut=QtGui.QKeySequence.Delete,statusTip="remove register", triggered=self.removeRegisterWidgetTableFromContextMenu))
-        menu.addAction(QtGui.QAction("&Copy", self.ui.registersWidget, shortcut="Ctrl+C",statusTip="Copy register item", triggered= self.copyRegItem))
+        menu.addAction(QtGui.QAction("&Delete", self.ui.registersWidget, shortcut=QtGui.QKeySequence.Delete,statusTip="remove register", triggered=self.__removeRegisterWidgetTableFromContextMenu))
+        menu.addAction(QtGui.QAction("&Copy", self.ui.registersWidget, shortcut="Ctrl+C",statusTip="Copy register item", triggered= self.__copyRegItem))
         menu.popup(self.ui.registersWidget.mapToGlobal(position))
         self.positionOfInvokedContextMenu= position
    
    
-    def removeRegisterWidgetTableFromContextMenu(self):
+    def __removeRegisterWidgetTableFromContextMenu(self):
         if(self.positionOfInvokedContextMenu is None):
             return
         nrOfRowToBeRemoved= self.ui.registersWidget.row(self.ui.registersWidget.itemAt(self.positionOfInvokedContextMenu))
@@ -228,11 +226,11 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         if D:
             print("removed")
             print("nrOfRowToBeRemoved %d" %nrOfRowToBeRemoved)
-        self.removeRegister(nrOfRowToBeRemoved)
+        self.__removeRegister(nrOfRowToBeRemoved)
     
 
     
-    def removeRegister(self,regRow):
+    def __removeRegister(self,regRow):
         if(regRow<0):
             raise Exception("regRow less than ZERO ERROR")
         
@@ -243,7 +241,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             print("REMOVED: :",self.registerList[regRow][2])
         del self.registerList[regRow]
         if(regRow>0):                           #show the last not removed row
-            self.updateBitmaskList(regRow-1)
+            self.__updateBitmaskList(regRow-1)
             self.registerList[regRow-1][2].updateRegisterValue()   
             self.registerList[regRow-1][2].updateRegAccesPermissionParam()
             self.registerList[regRow-1][2].show()
@@ -257,13 +255,12 @@ class DeviceDescriptionSheet(QtGui.QWidget):
     def removeAllRegisters(self):
         nrOfRows= len(self.registerList)-1
         while(nrOfRows>-1):
-            self.removeRegister(nrOfRows) 
+            self.__removeRegister(nrOfRows) 
             nrOfRows=nrOfRows-1
         self.firstRowFlag=False   
         
         
-        
-        #self.lastUsedRow=len(self.registerList)-1
+       
     def clearLayout(layout):
         while layout.count():
             child = layout.takeAt(0)
@@ -273,7 +270,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
                 clearLayout(child.layout())
     
     
-    def copyRegItem(self):
+    def __copyRegItem(self):
         print("copied") #TODO
     
     
@@ -282,20 +279,20 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         return
         
     
-    def reload8BitRegisterView(self,row,column):
+    def __reload8BitRegisterView(self,row,column):
         if(len(self.registerList) > 0):
             self.registerList[self.lastUsedRow][2].hide()
             #child = self.ui.register8BitHLayout.takeAt(1)
             #del child
             if D:
-                print("reload8BitRegisterView(self,row,column)")
+                print("__reload8BitRegisterView(self,row,column)")
                 print(self.lastUsedRow)
                 print(self.registerList[row][2])
         self.ui.register8BitHLayout.addWidget(self.registerList[row][2])
         self.registerList[row][2].updateRegisterValue()   
         self.registerList[row][2].updateRegAccesPermissionParam()
         self.registerList[row][2].show()
-        self.updateBitmaskList(row)
+        self.__updateBitmaskList(row)
         self.lastUsedRow=row
     
     def setDeviceName(self,name):
@@ -309,37 +306,37 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         
      
 
-    def checkParamCorrectnessBeforeSave(self):
+    def checkParamCorrectnessBefore__save(self):
         #TODO
     
         return True
 
      
-    #save method
-    def save(self):
+    #__save method
+    def __save(self):
         QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         xml = XmlRegister(self.registerList,self.getDeviceName(),self.getDeviceAddr())
         xml.generateXML()
         QtGui.QApplication.restoreOverrideCursor()
-        # self.statusBar().showMessage("Saved '%s'" % filename, 2000)    
+        # self.statusBar().showMessage("__saved '%s'" % filename, 2000)    
     
     
-    def openXMLFile(self):
+    def __openXMLFile(self):
         xml = XmlRegister()
         regMap,devName,devAddr= xml.readXML()
         if((regMap is not None) and (devName is not None) and (devAddr is not None)):
-            self.updateUiWithNewXml(regMap,devName,devAddr)
+            self.__updateUiWithNewXml(regMap,devName,devAddr)
 
-    def updateUiWithNewXml(self, regList,deviceName,deviceAddr):
+    def __updateUiWithNewXml(self, regList,deviceName,deviceAddr):
         #if(len(regList)!=3):
         #    return
         self.removeAllRegisters()
         self.setDeviceName(deviceName)
         self.setDeviceAddr(deviceAddr)       
         for i in range(len(regList)):
-            #self.updateAccessParameters(regList[i][3])
+            #self.__updateAccessParameters(regList[i][3])
             self.addNewRegister(regList[i])
-            self.updateRegAccessAttributes(regList[i][3],i)
+            self.__updateRegAccessAttributes(regList[i][3],i)
 
         
         
@@ -353,8 +350,8 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
         self.devAddr= devAddr
         self.devName= devName
     
-    def openWriteFileDialog(self):
-        filename, filtr = QtGui.QFileDialog.getSaveFileName(self,
+    def __openWriteFileDialog(self):
+        filename, filtr = QtGui.QFileDialog.get__saveFileName(self,
                 "Choose a file name", '.', "rd (*.rd)")
         if not filename:
             return
@@ -376,7 +373,7 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
                 print("INCORRECT initialisation of the xml object")
             return
         
-        file = self.openWriteFileDialog()
+        file = self.__openWriteFileDialog()
         if(not file):
             return
 
@@ -431,25 +428,27 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
 
 
 
-    def readXML(self):
-        options = QtGui.QFileDialog.Options()
-        filename, filtr = QtGui.QFileDialog.getOpenFileName(self,
+    def readXML(self,fileName=None):
+        self.__respondNone = [None,None,None]
+        if(fileName is None):
+            options = QtGui.QFileDialog.Options()
+            filename, filtr = QtGui.QFileDialog.getOpenFileName(self,
                 "Choose a file name", '.', "rd (*.rd)", "", options)
         if filename:
             file = QtCore.QFile(filename)
             if not file.open(QtCore.QIODevice.ReadOnly | QtCore.QIODevice.Text):
                 QtGui.QMessageBox.critical(self, "read I2C_SPI_CHECKER xml file ERROR",
                     "Couldn't open file %s:\n%s." % (filename, file.errorString()))
-                return      
+                return (self.__respondNone)     
         else:           
-            return
+            return (self.__respondNone)
         xmlReader = QtCore.QXmlStreamReader(file)
-        regMap=list()
-        deviceName = str()
-        deviceAddr = str()
+        
         if D:
             print("INIT!, devName and Addr")
-
+        regMap=list()       #return values
+        deviceName = str() 
+        deviceAddr = str()
         while( (not xmlReader.atEnd()) and  (not xmlReader.hasError())):
             xmlReader.readNext() #just skip the intro
             if(xmlReader.isStartDocument()):
@@ -458,19 +457,19 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
                 if(xmlReader.name()== 'device'):
                     continue
                 elif(xmlReader.name()=='name'):
-                    deviceName= self.readElementData(xmlReader)
+                    deviceName= self.__readElementData(xmlReader)
                 elif(xmlReader.name()=='address'):
-                    deviceAddr = self.readElementData(xmlReader)
+                    deviceAddr = self.__readElementData(xmlReader)
                 elif(xmlReader.name()=='registers'):
                     continue
                 elif(xmlReader.name()=='register'):
-                    regMap.append(self.parseRegister(xmlReader))
+                    regMap.append(self.__parseRegister(xmlReader))
                 else: 
                     break  #TODO error handler
         if(xmlReader.hasError()):
             QtGui.QMessageBox.critical(self, "I2C_SPI_CHECKER parse xml file ERROR",
                     "Failed string %s." % ( xmlReader.errorString()))
-            return
+            return (self.__respondNone)
             
         else:    
             if D:
@@ -491,9 +490,9 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
         return (regMap,deviceName,deviceAddr)
 
      
-    def parseRegister(self,xmlReader):
+    def __parseRegister(self,xmlReader):
         #if D:
-        #    print("parseRegister")
+        #    print("__parseRegister")
         regParam=() #(str(),str(),str(),list())
         if((not xmlReader.isStartElement())and(xmlReader.name=='register' )):
             return regParam #TODO error handler
@@ -502,21 +501,21 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
             xmlReader.readNext()
             if(xmlReader.isStartElement()):
                 if(xmlReader.name()=='name'):
-                    regParam= regParam+(self.readElementData(xmlReader),)  #name of the register                
+                    regParam= regParam+(self.__readElementData(xmlReader),)  #name of the register                
                 elif(xmlReader.name()=='address'):
-                    regParam= regParam+(self.readElementData(xmlReader),)  #addr of the register
+                    regParam= regParam+(self.__readElementData(xmlReader),)  #addr of the register
                 elif(xmlReader.name()=='bitmasks'):
-                    regParam= regParam+(self.parseBitmasks(xmlReader),)  #bitmasks of the register
+                    regParam= regParam+(self.__parseBitmasks(xmlReader),)  #bitmasks of the register
                 elif(xmlReader.name()=='byte_access_attr'):
-                    regParam= regParam+(self.parseRegAccessAttr(xmlReader),)  #access parameters of the register
+                    regParam= regParam+(self.__parseRegAccessAttr(xmlReader),)  #access parameters of the register
                 else:
                     return  regParam #TODO error handler
             
         return  regParam
     
-    def parseBitmasks(self,xmlReader):
+    def __parseBitmasks(self,xmlReader):
         #if D:
-        #    print("parseBitmasks")
+        #    print("__parseBitmasks")
         bitmaskList=list() 
         if((not xmlReader.isStartElement())and(xmlReader.name=='bitmasks' )):
             return bitmaskList #TODO error handler
@@ -524,14 +523,14 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
             xmlReader.readNext()
             if(xmlReader.isStartElement()):
                 if(xmlReader.name()=='bitmask'):
-                    bitmaskList.append(self.parseSingleBitmask(xmlReader))
+                    bitmaskList.append(self.__parseSingleBitmask(xmlReader))
                 else:
                     return  bitmaskList #TODO error handler
         return  bitmaskList
  
-    def parseSingleBitmask(self,xmlReader):
+    def __parseSingleBitmask(self,xmlReader):
         #if D:
-        #    print("parseSingleBitmask")
+        #    print("__parseSingleBitmask")
         newBitMaskDict={'Name':'' , 'Value':'' , 'Attr':'' } 
         if((not xmlReader.isStartElement())and(xmlReader.name=='bitmask' )):
             return newBitMaskDict #TODO error handler
@@ -540,18 +539,18 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
             if(xmlReader.isStartElement()):
 
                 if(xmlReader.name()=='name'):
-                    newBitMaskDict['Name']= self.readElementData(xmlReader) #name of the register
+                    newBitMaskDict['Name']= self.__readElementData(xmlReader) #name of the register
                 elif(xmlReader.name()=='mask'):
-                    newBitMaskDict['Value']= self.readElementData(xmlReader)  #addr of the register
+                    newBitMaskDict['Value']= self.__readElementData(xmlReader)  #addr of the register
                 elif(xmlReader.name()=='access_attr'):
-                    newBitMaskDict['Attr']= self.readElementData(xmlReader)
+                    newBitMaskDict['Attr']= self.__readElementData(xmlReader)
                 else:
                     return newBitMaskDict #TODO error handler
         return  newBitMaskDict 
         
-    def parseRegAccessAttr(self,xmlReader): 
+    def __parseRegAccessAttr(self,xmlReader): 
         #if D:
-        #    print("parseRegAccessAttr")
+        #    print("__parseRegAccessAttr")
         accessAttrList= list()
         if((not xmlReader.isStartElement())and(xmlReader.name=='byte_access_attr' )):
             return accessAttrList #TODO error handler
@@ -560,14 +559,14 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
             if(xmlReader.isStartElement()):
 
                 if(xmlReader.name()=='access_attr'):
-                    accessAttrList.append(self.readElementData(xmlReader)) #counted from the LSB 
+                    accessAttrList.append(self.__readElementData(xmlReader)) #counted from the LSB 
                 else:
                     return accessAttrList #TODO error handler
         return  accessAttrList 
         
         
         
-    def readElementData(self,xmlReader):
+    def __readElementData(self,xmlReader):
         if(not xmlReader.isStartElement()):
             return
         #if D:

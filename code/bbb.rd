@@ -141,8 +141,8 @@
    <byte_access_attr>
     <access_attr>N/A</access_attr>
     <access_attr>N/A</access_attr>
-    <access_attr>W</access_attr>
-    <access_attr>R</access_attr>
+    <access_attr>N/A</access_attr>
+    <access_attr>N/A</access_attr>
     <access_attr>R/W</access_attr>
     <access_attr>R/W</access_attr>
     <access_attr>R/W</access_attr>

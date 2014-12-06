@@ -14,9 +14,13 @@ from registersForm import XmlRegister
 D = True
 
 class MainWindow(QtGui.QMainWindow):
+    
+    maxRecentFiles = 5
+    
     def __init__(self):
         super(MainWindow, self).__init__()
-
+        
+        self.recentFileActs = []
         self.createActions()
         self.createMenus()
         self.createToolBars()
@@ -43,7 +47,7 @@ class MainWindow(QtGui.QMainWindow):
         return
     
     def sshMakeConnection(self,hostname, username, password):   # here we get ssh parameters for our connection to raspberry
-        conDialog = ConnectionDialog()
+        #conDialog = ConnectionDialog()
         self.hostname = hostname
         self.username = username
         self.password = password
@@ -71,13 +75,23 @@ class MainWindow(QtGui.QMainWindow):
             print('Console is already being displayed!')
         return
         
-    def obtainDeviceLibrary(self):
-        xml = XmlRegister()
+    def obtainDeviceFile(self,fileName=None): #when file name is not None, you request directly for a content of the file, skipping file open dialog
+        xml = XmlRegister(fileName)
+        QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         regMap,devName,devAddr= xml.readXML()
-        if D:
-            print(regMap)
-            print(devName)
-            print(devAddr)
+        QtGui.QApplication.restoreOverrideCursor()
+        if(regMap is None or devName is None or devAddr is None):
+            if D:
+                print("Open failed !!")
+            self.statusBar().showMessage("open failed !!" , 2200)
+        else:
+            self.setCurrentFile(fileName)
+            self.statusBar().showMessage("File %s loaded" % devName, 3000)
+            if D:
+                print(regMap)
+                print(devName)
+                print(devAddr)
+
             
     def save(self):
         filename, filtr = QtGui.QFileDialog.getSaveFileName(self,
@@ -97,7 +111,50 @@ class MainWindow(QtGui.QMainWindow):
         QtGui.QApplication.restoreOverrideCursor()
 
         self.statusBar().showMessage("Saved '%s'" % filename, 2000)
+    
+    def openRecentFile(self):
+        action = self.sender()
+        if action:
+            self.obtainDeviceFile(action.data())
+    
+    
+    def setCurrentFile(self, fileName):
+        settings = QtCore.QSettings('UszkoKalicki', 'i2cSpiChecker')
+        files = list(settings.value('recentFileList', []))
+        try:
+            files.remove(fileName)
+        except ValueError:
+            pass
+        files.insert(0, fileName)       
+        del files[MainWindow.maxRecentFiles:]
+        settings.setValue('recentFileList', files)
+        self.updateRecentFileActions()
 
+    def updateRecentFileActions(self):
+        settings = QtCore.QSettings('UszkoKalicki', 'i2cSpiChecker')
+        files = settings.value('recentFileList')
+
+        files_no = 0
+        if files:
+            files_no = len(files)
+
+        numRecentFiles = min(files_no, MainWindow.maxRecentFiles)
+
+        for i in range(numRecentFiles):
+            text = "&%d %s" % (i + 1, self.strippedName(files[i]))
+            self.recentFileActs[i].setText(text)
+            self.recentFileActs[i].setData(files[i])
+            self.recentFileActs[i].setVisible(True)
+
+        for j in range(numRecentFiles, MainWindow.maxRecentFiles):
+            self.recentFileActs[j].setVisible(False)
+
+        self.separatorAct.setVisible((numRecentFiles > 0))
+
+        
+    def strippedName(self, fullFileName):
+        return QtCore.QFileInfo(fullFileName).fileName()
+    
     def undo(self):
         #document = self.textEdit.document()
         #document.undo()
@@ -127,12 +184,16 @@ class MainWindow(QtGui.QMainWindow):
         self.openDeviceRegFormAct= QtGui.QAction(QtGui.QIcon('images/newForm.png'),
                 "&Open device register form", self, shortcut=QtGui.QKeySequence.Open,
                 statusTip="Obtain and read a form of registers of a new device",
-                triggered=self.obtainDeviceLibrary)
+                triggered=self.obtainDeviceFile)
         
         self.saveAct = QtGui.QAction(QtGui.QIcon('images/save.png'),
                 "&Save...", self, shortcut=QtGui.QKeySequence.Save,
                 statusTip="Save the new added device",
                 triggered=self.save)
+                
+        for i in range(MainWindow.maxRecentFiles):
+            self.recentFileActs.append( QtGui.QAction(self, visible=False,
+            triggered=self.openRecentFile))
 
         self.undoAct = QtGui.QAction(QtGui.QIcon('images/undo.png'),
                 "&Undo", self, shortcut=QtGui.QKeySequence.Undo,
@@ -158,6 +219,9 @@ class MainWindow(QtGui.QMainWindow):
         self.fileMenu.addAction(self.openDeviceRegFormAct)
         self.fileMenu.addAction(self.createNewDeviceAct)
         self.fileMenu.addAction(self.saveAct)
+        self.separatorAct = self.fileMenu.addSeparator()
+        for i in range(MainWindow.maxRecentFiles):
+            self.fileMenu.addAction(self.recentFileActs[i])
         self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.quitAct)
 
