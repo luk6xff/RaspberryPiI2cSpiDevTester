@@ -6,7 +6,7 @@ from register8bitMap import Reg8BitMap
 from messageBoxWrapper import MessageBox
 import re
 
-D = False    #debug enebled
+D = True    #debug enebled
 
 class DeviceDescriptionSheet(QtGui.QWidget):
   
@@ -245,7 +245,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             self.registerList[regRow-1][2].updateRegisterValue()   
             self.registerList[regRow-1][2].updateRegAccesPermissionParam()
             self.registerList[regRow-1][2].show()
-        self.lastUsedRow=self.ui.registersWidget.rowCount()-1 
+        self.lastUsedRow=regRow-1#self.ui.registersWidget.rowCount()
 
             
         
@@ -286,8 +286,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             #del child
             if D:
                 print("__reload8BitRegisterView(self,row,column)")
-                print(self.lastUsedRow)
-                print(self.registerList[row][2])
+                print("self.lastUsedRow",self.lastUsedRow)
+                print("self.registerList[row][2]", row, "   " ,self.registerList[row][2])
         self.ui.register8BitHLayout.addWidget(self.registerList[row][2])
         self.registerList[row][2].updateRegisterValue()   
         self.registerList[row][2].updateRegAccesPermissionParam()
