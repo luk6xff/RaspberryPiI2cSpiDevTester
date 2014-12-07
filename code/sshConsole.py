@@ -108,7 +108,7 @@ if __name__ == '__main__':
     import sys
 
     app = QtGui.QApplication(sys.argv)
-    sshClient= SshConnection('172.16.1.102', 22, 'pi', 'raspberry')  #for tests 
+    sshClient=SshConnection('192.168.201.3', 'pi', 'pi');
     sshClient.connect() #try to connect to raspberry
     console = SshConsole(sshClient)
     console.addText("AAAAAA")
