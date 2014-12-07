@@ -54,6 +54,13 @@ class Reg8BitMap(QtGui.QWidget):
         if D:
             print("REG_VAL = %d" % self.byteRegVal)
     
+    
+    def setRegAccesPermissionParam(self,attrList):
+        for i in range(Reg8BitMap.NumOfBits):            
+            self.renderBitsArea[Reg8BitMap.NumOfBits-i-1].setWriteReadAttribute(WriteReadBitPrivilege.convertFromValueToEnumtype(attrList[i]))
+        self.updateRegisterValue()
+    
+    
     def updateRegAccesPermissionParam(self):
         self.byteRegAccessList=list();
         for i in range(Reg8BitMap.NumOfBits):
@@ -61,7 +68,10 @@ class Reg8BitMap(QtGui.QWidget):
         if D:
             print(self.byteRegAccessList)         
         self.regAccessPermissionChanged.emit(self.byteRegAccessList)
-        
+    
+    def getRegAccessPerametersList(self):
+        return self.byteRegAccessList
+    
     def bitMaskCreated(self, bitmask): ######## invoked after creation of bitmask 
         for i in range(Reg8BitMap.NumOfBits):
             if(bitmask & (1<<i)):
@@ -103,12 +113,24 @@ class BitState(Enum):
     
 class WriteReadBitPrivilege(Enum):
     NA="N/A"
-    Write=" W "
-    Read=" R "
+    Write="W"
+    Read="R"
     WriteRead="R/W"
     
-
-    
+    @staticmethod
+    def convertFromValueToEnumtype(attr):
+        ret =None
+        if(attr==WriteReadBitPrivilege.WriteRead.value):
+            ret= WriteReadBitPrivilege.WriteRead
+        elif(attr==WriteReadBitPrivilege.Read.value):
+            ret= WriteReadBitPrivilege.Read
+        elif(attr==WriteReadBitPrivilege.Write.value):
+            ret= WriteReadBitPrivilege.Write
+        elif(attr==WriteReadBitPrivilege.NA.value):
+            ret= WriteReadBitPrivilege.NA
+        else:
+            ret = None
+        return  ret
 class RectRenderArea(QtGui.QWidget):
     ColorBitActive= [QtCore.Qt.white,QtCore.Qt.green]
     ColorBitInactive= [QtCore.Qt.white,QtCore.Qt.red]
@@ -167,6 +189,8 @@ class RectRenderArea(QtGui.QWidget):
         return self.bitState 
         
     def setWriteReadAttribute(self,attr):
+        if(self.bitState is BitState.Blocked):   #when bit blocked
+            return
         self.writeReadAttribute= attr
         if(self.getWriteReadAttribute() is WriteReadBitPrivilege.NA):
            self.setFillGradient(RectRenderArea.ColorBitNotUsed[0], RectRenderArea.ColorBitNotUsed[1])
@@ -200,7 +224,10 @@ class RectRenderArea(QtGui.QWidget):
         if D:
             print("PAINTING...")
         painter.drawPath(self.path)
-        painter.drawText(25,45, str(self.writeReadAttribute.value));
+        attrString = str(self.writeReadAttribute.value)
+        if(len(attrString)==1):
+            attrString = " "+attrString+" "
+        painter.drawText(25,45, attrString);
         if D:
             print("%s" % str(self.writeReadAttribute.name))
         
