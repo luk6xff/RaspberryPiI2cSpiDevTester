@@ -311,9 +311,11 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         for i in range(len(self.registerList)):
             m = re.search(addrPattern,self.registerList[i][1].text())
             if m:
-                print("found a match:", m.group(0))
+                if D:
+                    print("found a match:", m.group(0))
             else:
-                print("PATTERN has not been found ",self.registerList[i][1].text())
+                if D:
+                    print("PATTERN has not been found ",self.registerList[i][1].text())
                 QtGui.QMessageBox.critical(self, "I2C_SPI_CHECKER incorrect value",
                     "Register ' %s ': contains incorrect format of the address: ' %s '\n Address must be typed in the following format: 0xFF\n Correct it and try again!" % (self.registerList[i][0].text(), self.registerList[i][1].text()))
                 return False

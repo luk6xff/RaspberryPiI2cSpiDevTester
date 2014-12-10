@@ -14,21 +14,26 @@ D=True #debug enabled
 class RegistersViewer(QtGui.QWidget):
 
     def __init__(self,  sshClient,deviceAddress,deviceName,regs,parent=None):
-        self.deviceAddress = deviceAddress;
+        self.deviceAddress = deviceAddress
+        self.deviceName = deviceName
+        self.registerList= regs
         self.sshClient=sshClient 
         super(RegistersViewer, self).__init__(parent)
         
         self.ui =  Ui_RegistersView()
         self.ui.setupUi(self)
-        self.registersList= list();  #sth aka MVC dessign pattern, all stuff is stored in one main list
-        self.formulasList = list();
+        self.registersList= list()  #sth aka MVC dessign pattern, all stuff is stored in one main list
+        self.formulasList = list()
+        #self.ui.registersWidget.setHorizontalHeaderLabels(horizontalHeaderLabel)
+        self.ui.RegistersTable.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.ui.RegistersTable.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         
         self.initConnections()
         
         
-        self.maxRegisterNumber=0;
-        self.minRegisterNumber=9999;
-        self.loadRegisters(regs)
+        self.maxRegisterNumber=0
+        self.minRegisterNumber=9999
+        self.loadRegisters()
         
         
     def initConnections(self):			# setup all connections of signal and slots
@@ -38,10 +43,10 @@ class RegistersViewer(QtGui.QWidget):
         i=2;
         # dont do anything
     
-    def addNewRegister(self,number, name, value, function):
+    def addNewRegister(self,addr, name, value, function):
         self.ui.RegistersTable.insertRow(self.ui.RegistersTable.rowCount());
-        #"0x%02x" % value
-        regTuple=(QtGui.QTableWidgetItem(("0x%02x" % number)),QtGui.QTableWidgetItem(("%s" % name)),QtGui.QTableWidgetItem(( value)),QtGui.QTableWidgetItem(("%s" % function)));
+        
+        regTuple=(QtGui.QTableWidgetItem((addr)),QtGui.QTableWidgetItem(("%s" % name)),QtGui.QTableWidgetItem(( "0x%02x" % value)),QtGui.QTableWidgetItem(("%s" % function)));
         self.registersList.append(regTuple);
         
         self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,0,self.registersList[-1][0]);
@@ -49,18 +54,20 @@ class RegistersViewer(QtGui.QWidget):
         self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,2,self.registersList[-1][2]);
         self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,3,self.registersList[-1][3]);
         
-        if number<self.minRegisterNumber:
-            self.minRegisterNumber=number;
-        if number>self.maxRegisterNumber:
-            self.maxRegisterNumber=number;
+        # if addr<self.minRegisterNumber:
+            # self.minRegisterNumber=addr;
+        # if addr>self.maxRegisterNumber:
+            # self.maxRegisterNumber=addr;
         
         #TODO add protection befor adding the same register number or name twice.
     
-    def loadRegisters(self,regList):
-        if regList is None:
+    def loadRegisters(self):
+        if self.registerList is None:
             return
-        for i in range(len(regList)):
-            self.addNewRegister(i,regList[i][0],regList[i][1],'none')
+        for i in range(len(self.registerList)):
+            self.addNewRegister(self.registerList[i][1],self.registerList[i][0],i,'none')
+        self.ui.devNameLabel.setText(self.deviceName)
+        self.ui.devAddrLabel.setText(self.deviceAddress)
             
         
     
