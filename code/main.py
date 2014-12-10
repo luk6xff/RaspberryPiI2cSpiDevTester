@@ -10,6 +10,7 @@ from messageBoxWrapper import MessageBox
 from styleIcon import StyleIcon
 from registersForm import DeviceDescriptionSheet
 from registersForm import XmlRegister
+from registersView import RegistersViewer
 
 D = True
 
@@ -91,6 +92,10 @@ class MainWindow(QtGui.QMainWindow):
                 print(regMap)
                 print(devName)
                 print(devAddr)
+        sshClient=SshConnection('172.16.1.102','pi', 'raspberry');
+        sshClient.connect();
+        myDeviceRegisters = RegistersViewer(sshClient,devAddr,devName,regMap);
+        self.setCentralWidget(myDeviceRegisters)
 
             
     def save(self):

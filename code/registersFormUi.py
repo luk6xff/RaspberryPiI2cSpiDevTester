@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegisterForm.ui'
 #
-# Created: Tue Dec  2 22:22:43 2014
+# Created: Mon Dec  8 00:36:10 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_RegitersForm(object):
     def setupUi(self, RegitersForm):
         RegitersForm.setObjectName("RegitersForm")
-        RegitersForm.resize(695, 457)
+        RegitersForm.resize(731, 457)
         self.registersWidget = QtGui.QTableWidget(RegitersForm)
         self.registersWidget.setGeometry(QtCore.QRect(40, 100, 261, 251))
         self.registersWidget.setObjectName("registersWidget")

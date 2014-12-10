@@ -245,7 +245,7 @@ class DeviceDescriptionSheet(QtGui.QWidget):
             self.registerList[regRow-1][2].updateRegisterValue()   
             self.registerList[regRow-1][2].updateRegAccesPermissionParam()
             self.registerList[regRow-1][2].show()
-        self.lastUsedRow=regRow-1#self.ui.registersWidget.rowCount()
+        self.lastUsedRow=regRow-1
 
             
         
@@ -306,14 +306,26 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         
      
 
-    def checkParamCorrectnessBefore__save(self):
-        #TODO
-    
+    def checkParamCorrectnessBeforeSave(self):
+        addrPattern= re.compile('0x[0-9a-fA-F][0-9a-fA-F]'); 
+        for i in range(len(self.registerList)):
+            m = re.search(addrPattern,self.registerList[i][1].text())
+            if m:
+                print("found a match:", m.group(0))
+            else:
+                print("PATTERN has not been found ",self.registerList[i][1].text())
+                QtGui.QMessageBox.critical(self, "I2C_SPI_CHECKER incorrect value",
+                    "Register ' %s ': contains incorrect format of the address: ' %s '\n Address must be typed in the following format: 0xFF\n Correct it and try again!" % (self.registerList[i][0].text(), self.registerList[i][1].text()))
+                return False
         return True
 
      
     #__save method
     def __save(self):
+        if D:
+            print("__save INVOKED")
+        if((self.checkParamCorrectnessBeforeSave()) is False): 
+            return
         QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         xml = XmlRegister(self.registerList,self.getDeviceName(),self.getDeviceAddr())
         xml.generateXML()
@@ -351,7 +363,7 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
         self.devName= devName
     
     def __openWriteFileDialog(self):
-        filename, filtr = QtGui.QFileDialog.get__saveFileName(self,
+        filename, filtr = QtGui.QFileDialog.getSaveFileName(self,
                 "Choose a file name", '.', "rd (*.rd)")
         if not filename:
             return
@@ -416,7 +428,7 @@ class XmlRegister(QtGui.QWidget):  #inheits QWidget to operate on QFileDialogs c
             xmlWriter.writeEndElement()
             access_list= self.registerList[i][2].getRegAccessPerametersList()
             xmlWriter.writeStartElement("byte_access_attr")
-            for i in range(len( access_list)):
+            for i in range(len(access_list)):
                 xmlWriter.writeStartElement("access_attr")
                 xmlWriter.writeCharacters(access_list[i])
                 xmlWriter.writeEndElement()

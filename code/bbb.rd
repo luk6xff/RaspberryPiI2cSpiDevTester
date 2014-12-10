@@ -5,7 +5,7 @@
  <registers>
   <register>
    <name>aaa</name>
-   <address>aaa</address>
+   <address>0x00</address>
    <bitmasks>
     <bitmask>
      <name>aaaa</name>
@@ -31,7 +31,7 @@
   </register>
   <register>
    <name>bbb</name>
-   <address>bbb</address>
+   <address>0x01</address>
    <bitmasks>
     <bitmask>
      <name>cccc</name>
@@ -57,7 +57,7 @@
   </register>
   <register>
    <name>cccc</name>
-   <address>cccc</address>
+   <address>0xef</address>
    <bitmasks>
     <bitmask>
      <name>1_bitmask</name>
@@ -88,7 +88,7 @@
   </register>
   <register>
    <name>ddd</name>
-   <address>dddd</address>
+   <address>0xcc</address>
    <bitmasks>
     <bitmask>
      <name>bitmask</name>
@@ -109,7 +109,7 @@
   </register>
   <register>
    <name>fsdfds</name>
-   <address>dsfsdfsd</address>
+   <address>0xdd</address>
    <bitmasks>
     <bitmask>
      <name>ewrwerwer</name>
@@ -130,7 +130,7 @@
   </register>
   <register>
    <name>eeee</name>
-   <address>eeeee</address>
+   <address>0xae</address>
    <bitmasks>
     <bitmask>
      <name>BITMASK</name>
