@@ -25,8 +25,6 @@ class RegistersViewer(QtGui.QWidget):
         self.registersList= list()  
         self.formulasList = list()
         #self.ui.registersWidget.setHorizontalHeaderLabels(horizontalHeaderLabel)
-        #self.ui.RegistersTable.horizontalHeader().setStretchLastSection(True)
-        #self.ui.RegistersTable.horizontalHeader().setResizeMode(8, QtGui.QHeaderView.Fixed);
         self.ui.RegistersTable.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.ui.RegistersTable.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
  
@@ -60,10 +58,6 @@ class RegistersViewer(QtGui.QWidget):
         #regTuple=(QtGui.QTableWidgetItem((addr)),QtGui.QTableWidgetItem(("%s" % name)),QtGui.QTableWidgetItem(( "0x%02x" % value)),QtGui.QTableWidgetItem(("%s" % function)));
         #self.registersList.append(regTuple);
         
-        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,0,QtGui.QTableWidgetItem((addr)));
-        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,1,QtGui.QTableWidgetItem(("%s" % name)));
-        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,2,QtGui.QTableWidgetItem(("0x%02x" % value)));
-        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,3,QtGui.QTableWidgetItem(("%s" % function)));
         
         # if number<self.minRegisterNumber:
             # self.minRegisterNumber=number;
@@ -79,7 +73,6 @@ class RegistersViewer(QtGui.QWidget):
             self.addNewRegister(self.registerList[i][1],self.registerList[i][0],i,'none')
         self.ui.devNameLabel.setText(self.deviceName)
         self.ui.devAddrLabel.setText(self.deviceAddress)
-     
     def reloadBitmaskWindow(self,row,column):
         if D:
             print("Row Nr %d" % row , "has been clicked")
@@ -93,8 +86,7 @@ class RegistersViewer(QtGui.QWidget):
             self.ui.bitmaskTableWidget.setItem(self.ui.bitmaskTableWidget.rowCount()-1,0,QtGui.QTableWidgetItem(self.registerList[row][2][i]['Name']))
             self.ui.bitmaskTableWidget.setItem(self.ui.bitmaskTableWidget.rowCount()-1,1,QtGui.QTableWidgetItem(self.registerList[row][2][i]['Value']))
             self.ui.bitmaskTableWidget.setItem(self.ui.bitmaskTableWidget.rowCount()-1,2,QtGui.QTableWidgetItem(self.registerList[row][2][i]['Attr']))
-             
-            
+                         
         
     
     
