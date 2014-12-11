@@ -92,7 +92,7 @@ class MainWindow(QtGui.QMainWindow):
                 print(regMap)
                 print(devName)
                 print(devAddr)
-        sshClient=SshConnection('172.16.1.102','pi', 'raspberry');
+        sshClient=SshConnection('192.168.201.3','pi', 'pi');
         sshClient.connect();
         myDeviceRegisters = RegistersViewer(sshClient,devAddr,devName,regMap);
         self.setCentralWidget(myDeviceRegisters)

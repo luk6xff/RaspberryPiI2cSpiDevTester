@@ -18,6 +18,7 @@ class RegistersViewer(QtGui.QWidget):
         self.deviceName = deviceName
         self.registerList= regs
         self.sshClient=sshClient 
+        print (self.deviceAddress);
         super(RegistersViewer, self).__init__(parent)
         
         self.ui =  Ui_RegistersView()
@@ -37,11 +38,13 @@ class RegistersViewer(QtGui.QWidget):
         
         self.initConnections()
         
-        
         self.maxRegisterNumber=0
         self.minRegisterNumber=9999
         self.loadRegisters()
         
+        update_thread = Thread(target=self.RPiReadRegisters) 
+        update_thread.daemon = True
+        update_thread.start()
         
     def initConnections(self):			# setup all connections of signal and slots
         self.ui.AddFormulaButton.clicked.connect(self.addFormulaClicked);
@@ -52,17 +55,21 @@ class RegistersViewer(QtGui.QWidget):
         i=2;
         # dont do anything
     
-    def addNewRegister(self,addr, name, value, function):
+    def addNewRegister(self,regNumber, name, value, function):
         self.ui.RegistersTable.insertRow(self.ui.RegistersTable.rowCount());
         
-        #regTuple=(QtGui.QTableWidgetItem((addr)),QtGui.QTableWidgetItem(("%s" % name)),QtGui.QTableWidgetItem(( "0x%02x" % value)),QtGui.QTableWidgetItem(("%s" % function)));
+        #regTuple=(QtGui.QTableWidgetItem((regNumber)),QtGui.QTableWidgetItem(("%s" % name)),QtGui.QTableWidgetItem(( "0x%02x" % value)),QtGui.QTableWidgetItem(("%s" % function)));
         #self.registersList.append(regTuple);
         
-        
-        # if number<self.minRegisterNumber:
-            # self.minRegisterNumber=number;
-        # if number>self.maxRegisterNumber:
-            # self.maxRegisterNumber=number;
+        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,0,QtGui.QTableWidgetItem((regNumber)));
+        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,1,QtGui.QTableWidgetItem(("%s" % name)));
+        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,2,QtGui.QTableWidgetItem(("0x%02x" % value)));
+        self.ui.RegistersTable.setItem(self.ui.RegistersTable.rowCount()-1,3,QtGui.QTableWidgetItem(("%s" % function)));
+		
+        if int(regNumber,16)<self.minRegisterNumber:
+            self.minRegisterNumber=int(regNumber,16);
+        if int(regNumber,16)>self.maxRegisterNumber:
+            self.maxRegisterNumber=int(regNumber,16);
         
         #TODO add protection befor adding the same register number or name twice.
     
@@ -91,19 +98,19 @@ class RegistersViewer(QtGui.QWidget):
     
     
     
-    def updateRegisterValue(self,number,value):
+    def updateRegisterValue(self,regNumber,value):
         for i in range(0,self.ui.RegistersTable.rowCount()):    #look for register with "number"
-            if(self.ui.RegistersTable.item(i,0).text())==("0x%02x" % number):      #check number match
+            if(self.ui.RegistersTable.item(i,0).text())==("0x%02x" % regNumber):      #check number match
                 self.ui.RegistersTable.setItem(i,2,QtGui.QTableWidgetItem(("0x%02x" % value)));
                 break;
     
-    def getRegisterValue(self,number):
+    def getRegisterValue(self,regNumber):
         for i in range(0,self.ui.RegistersTable.rowCount()):        #look for register with "number"
-           if (self.ui.RegistersTable.item(i,0).text())==("0x%02x" % number):		#check number match
+           if (self.ui.RegistersTable.item(i,0).text())==("0x%02x" % regNumber):		#check number match
                 return int(self.ui.RegistersTable.item(i,2).text(),16);
         return 0;
     
-    def updateRegisterFunction(self,number):	#this function updates automaticly function column based on the register value
+    def updateRegisterFunction(self,regNumber):	#this function updates automaticly function column based on the register value
         i=2;
     
     def RPiReadRegisters(self):
@@ -111,8 +118,8 @@ class RegistersViewer(QtGui.QWidget):
             startIndex=self.minRegisterNumber;
             stopIndex=self.maxRegisterNumber+1;
             
-            command = "python i2c_program/i2c_com.py read_block "+("0x%02x" % self.deviceAddress)+" "+("%d" % startIndex)+" "+("%d" % stopIndex);
-            
+            command = "python i2c_program/i2c_com.py read_block "+("0x%02x" % int(self.deviceAddress,16))+" "+("%d" % startIndex)+" "+("%d" % stopIndex);
+            print(command);
             response = self.sshClient.executeCommand(command,True)
             for line in response['STDOUT']:
                 #print (line.strip('\n'))
