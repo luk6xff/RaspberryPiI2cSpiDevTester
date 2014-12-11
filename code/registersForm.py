@@ -28,6 +28,8 @@ class DeviceDescriptionSheet(QtGui.QWidget):
         self.ui.registersWidget.setHorizontalHeaderLabels(horizontalHeaderLabel)
         self.ui.registersWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.ui.registersWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.ui.registersWidget.setColumnWidth(0,132)
+        self.ui.registersWidget.horizontalHeader().setStretchLastSection(True)
         self.ui.registersWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)#to enable context menu
         self.ui.bitmaskListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)#to enable context menu
         #Qt::CustomContextMenu, the signal customContextMenuRequested() is emitted.

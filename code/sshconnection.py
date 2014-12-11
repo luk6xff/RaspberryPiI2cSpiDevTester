@@ -30,7 +30,7 @@ class SshConnection:
     def connect(self):
         # Try to connect to the host.
         # Retry a few times if it fails.
-        nrOfTries =10
+        nrOfTries =2
         i = 1
         while True:
             print ("Trying to connect to %s (%i/%i)" % (self.hostname, i,nrOfTries))
