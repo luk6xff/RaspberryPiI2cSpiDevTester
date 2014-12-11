@@ -44,6 +44,7 @@ class RegistersViewer(QtGui.QWidget):
         self.maxRegisterNumber=0
         self.minRegisterNumber=9999
         self.loadRegisters()
+        self.registerBitmaskEdited=-1;
         
         update_thread = Thread(target=self.RPiReadRegisters) 
         update_thread.daemon = True
@@ -52,11 +53,7 @@ class RegistersViewer(QtGui.QWidget):
     def initConnections(self):			# setup all connections of signal and slots
         self.ui.AddFormulaButton.clicked.connect(self.addFormulaClicked);
         self.ui.RegistersTable.cellClicked.connect(self.reloadBitmaskWindow)
-        #self.ui.updateCommandLinkButton.clicked.connect(self.updateBitmaskOfGivenRegister) #TODO
-    
-    def readDeviceInformations(self):	#read all registers information from XML file
-        i=2;
-        # dont do anything
+        self.ui.updateCommandLinkButton.clicked.connect(self.updateBitmaskOfGivenRegister) #TODO
     
     def addNewRegister(self,regNumber, name, value, function):
         self.ui.RegistersTable.insertRow(self.ui.RegistersTable.rowCount());
@@ -95,12 +92,23 @@ class RegistersViewer(QtGui.QWidget):
             self.ui.bitmaskTableWidget.removeRow(nrOfRows)
             nrOfRows=nrOfRows-1
         
+        self.registerBitmaskEdited = int(self.registerList[row][1],16);
+        registerValue = self.getRegisterValue(int(self.registerList[row][1],16));
+        
         for i in range(len(self.registerList[row][2])):
+            mask = int(self.registerList[row][2][i]['Value'],16);
+            maskValue=0;
+            maskBitCounter=1;
+            for i_bit in range (0,8):
+                if (mask & (1<<i_bit))>0:
+                    maskValue = maskValue + ((registerValue & (1<<i_bit))>0)*maskBitCounter;
+                    maskBitCounter=maskBitCounter*2;
+            
             self.ui.bitmaskTableWidget.insertRow(self.ui.bitmaskTableWidget.rowCount())
             self.ui.bitmaskTableWidget.setItem(self.ui.bitmaskTableWidget.rowCount()-1,0,QtGui.QTableWidgetItem(self.registerList[row][2][i]['Name']))
             self.ui.bitmaskTableWidget.setItem(self.ui.bitmaskTableWidget.rowCount()-1,1,QtGui.QTableWidgetItem(self.registerList[row][2][i]['Value']))
             self.ui.bitmaskTableWidget.setItem(self.ui.bitmaskTableWidget.rowCount()-1,2,QtGui.QTableWidgetItem(self.registerList[row][2][i]['Attr']))
-                         
+            self.ui.bitmaskTableWidget.setItem(self.ui.bitmaskTableWidget.rowCount()-1,3,QtGui.QTableWidgetItem("%d" % maskValue))
         
     
     
@@ -117,19 +125,17 @@ class RegistersViewer(QtGui.QWidget):
                 return int(self.ui.RegistersTable.item(i,2).text(),16);
         return 0;
     
-    def updateRegisterFunction(self,regNumber):	#this function updates automaticly function column based on the register value
-        i=2;
-    
     def RPiReadRegisters(self):
         while 1:
             startIndex=self.minRegisterNumber;
             stopIndex=self.maxRegisterNumber+1;
             
             command = "python i2c_program/i2c_com.py read_block "+("0x%02x" % int(self.deviceAddress,16))+" "+("%d" % startIndex)+" "+("%d" % stopIndex);
-            print(command);
+            if D:
+                print("Rpi command: "+command);
             response = self.sshClient.executeCommand(command,True)
+            readValues=[];
             for line in response['STDOUT']:
-                #print (line.strip('\n'))
                 readValues = ast.literal_eval(line.strip('\n'))
             for i_reg in range(0,stopIndex-startIndex):
                 self.updateRegisterValue(i_reg+startIndex,readValues[i_reg]);
@@ -137,9 +143,37 @@ class RegistersViewer(QtGui.QWidget):
     
             self.updateFormulas();
 
-    def RpiSetRegister(self,register,value):
-        command = "python i2c_program/i2c_com.py set_reg "+("0x%02x" % self.deviceAddress)+" "+("0x%02x"  % reg)+" "+("0x%02x" % value);
-        
+    def RpiSetRegister(self,reg,value):
+        command = "python i2c_program/i2c_com.py set_reg "+("0x%02x" % int(self.deviceAddress,16))+" "+("0x%02x"  % reg)+" "+("0x%02x" % value);
+        if D:
+            print("Rpi command: "+command);
+        response = self.sshClient.executeCommand(command,True);
+        for line in response['STDOUT']:
+            RpiResponse = ast.literal_eval(line.strip('\n'))
+            print ("Rpi response: "+RpiResponse);
+        #sleep(0.2);
+
+			
+    def updateBitmaskOfGivenRegister(self):
+        registerValue=0;
+        for i in range(0,self.ui.bitmaskTableWidget.rowCount()):
+            valueBit=0;
+            mask=int(self.ui.bitmaskTableWidget.item(i,1).text(),16);
+            bitmaskValue=int(self.ui.bitmaskTableWidget.item(i,3).text(),16);
+            if bitmaskValue>mask:
+                bitmaskValue=mask;
+            for i_bit in range(0,8):
+                if (mask & (1<<i_bit))>0:
+                #    if(bitmaskValue&(1<<valueBit))>0:
+                #        registerValue=registerValue+(1<<i_bit);
+                #    valueBit=valueBit+1;
+                    registerValue=registerValue+(bitmaskValue<<i_bit);
+                    break;
+        if D:
+            print ("Register new value = "+("%d"%registerValue));
+        print(self.registerBitmaskEdited);
+        self.RpiSetRegister(int(self.registerBitmaskEdited),int(registerValue));
+            
     def addFormulaClicked(self):
         print ("AddFormula()");
         formulaText = self.ui.FormulaText.toPlainText();
