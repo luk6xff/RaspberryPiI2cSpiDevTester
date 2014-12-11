@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'uiRegistersView.ui'
 #
-# Created: Wed Dec 10 23:49:00 2014
+# Created: Thu Dec 11 00:37:22 2014
 #      by: pyside-uic 0.2.15 running on PySide 1.2.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,11 +17,40 @@ class Ui_RegistersView(object):
         self.groupBox.setGeometry(QtCore.QRect(10, 40, 421, 111))
         self.groupBox.setObjectName("groupBox")
         self.horizontalLayoutWidget = QtGui.QWidget(self.groupBox)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 381, 81))
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 20, 411, 81))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.horizontalLayout = QtGui.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.bitmaskTableWidget = QtGui.QTableWidget(self.horizontalLayoutWidget)
+        self.bitmaskTableWidget.setObjectName("bitmaskTableWidget")
+        self.bitmaskTableWidget.setColumnCount(3)
+        self.bitmaskTableWidget.setRowCount(0)
+        item = QtGui.QTableWidgetItem()
+        self.bitmaskTableWidget.setHorizontalHeaderItem(0, item)
+        item = QtGui.QTableWidgetItem()
+        self.bitmaskTableWidget.setHorizontalHeaderItem(1, item)
+        item = QtGui.QTableWidgetItem()
+        self.bitmaskTableWidget.setHorizontalHeaderItem(2, item)
+        self.horizontalLayout.addWidget(self.bitmaskTableWidget)
+        self.updateCommandLinkButton = QtGui.QCommandLinkButton(self.horizontalLayoutWidget)
+        self.updateCommandLinkButton.setEnabled(True)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(8)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.updateCommandLinkButton.sizePolicy().hasHeightForWidth())
+        self.updateCommandLinkButton.setSizePolicy(sizePolicy)
+        self.updateCommandLinkButton.setMaximumSize(QtCore.QSize(93, 42))
+        font = QtGui.QFont()
+        font.setFamily("Segoe UI")
+        font.setWeight(75)
+        font.setItalic(True)
+        font.setBold(True)
+        self.updateCommandLinkButton.setFont(font)
+        self.updateCommandLinkButton.setObjectName("updateCommandLinkButton")
+        self.horizontalLayout.addWidget(self.updateCommandLinkButton)
+        spacerItem = QtGui.QSpacerItem(0, 16, QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
         self.groupBox_2 = QtGui.QGroupBox(RegistersView)
         self.groupBox_2.setGeometry(QtCore.QRect(10, 150, 421, 371))
         self.groupBox_2.setObjectName("groupBox_2")
@@ -139,6 +168,10 @@ class Ui_RegistersView(object):
     def retranslateUi(self, RegistersView):
         RegistersView.setWindowTitle(QtGui.QApplication.translate("RegistersView", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("RegistersView", "Bitmasks", None, QtGui.QApplication.UnicodeUTF8))
+        self.bitmaskTableWidget.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("RegistersView", "Name", None, QtGui.QApplication.UnicodeUTF8))
+        self.bitmaskTableWidget.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("RegistersView", "Mask", None, QtGui.QApplication.UnicodeUTF8))
+        self.bitmaskTableWidget.horizontalHeaderItem(2).setText(QtGui.QApplication.translate("RegistersView", "Value", None, QtGui.QApplication.UnicodeUTF8))
+        self.updateCommandLinkButton.setText(QtGui.QApplication.translate("RegistersView", "Update ", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_2.setTitle(QtGui.QApplication.translate("RegistersView", "Registers", None, QtGui.QApplication.UnicodeUTF8))
         self.RegistersTable.horizontalHeaderItem(0).setText(QtGui.QApplication.translate("RegistersView", "Addr", None, QtGui.QApplication.UnicodeUTF8))
         self.RegistersTable.horizontalHeaderItem(1).setText(QtGui.QApplication.translate("RegistersView", "Name", None, QtGui.QApplication.UnicodeUTF8))

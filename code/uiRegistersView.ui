@@ -30,11 +30,77 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>381</width>
+      <width>411</width>
       <height>81</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout"/>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QTableWidget" name="bitmaskTableWidget">
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Mask</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Value</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCommandLinkButton" name="updateCommandLinkButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>8</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>93</width>
+         <height>42</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Segoe UI</family>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Update </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Preferred</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>16</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
@@ -285,13 +351,6 @@
     <bool>false</bool>
    </property>
   </widget>
-  <zorder>groupBox</zorder>
-  <zorder>groupBox_2</zorder>
-  <zorder>groupBox_3</zorder>
-  <zorder>groupBox_3</zorder>
-  <zorder>UpdateRegisterButton</zorder>
-  <zorder>devNameLabel</zorder>
-  <zorder>devAddrLabel</zorder>
  </widget>
  <resources/>
  <connections/>
